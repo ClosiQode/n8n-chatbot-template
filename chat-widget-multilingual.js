@@ -480,6 +480,8 @@
     // Ajouter une variable pour suivre l'état de la conversation
     let conversationStarted = false;
     let currentSessionId = '';
+
+    console.log("Widget configuration:", config);
     
     // Modifier la fonction startNewConversation pour ne démarrer qu'une seule fois
     async function startNewConversation() {
