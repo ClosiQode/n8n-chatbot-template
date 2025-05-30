@@ -451,6 +451,136 @@
             opacity: 0.8;
         }
 
+ lege        /* Styles pour l'aperçu du chatbot */
+        .new-conversation {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+        }
+        
+        .chat-interface {
+            display: none; /* Masqué par défaut */
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+        }
+        
+        .welcome-content {
+            padding: 2rem 1.5rem;
+            text-align: center;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .welcome-content h3 {
+            color: #333;
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+            line-height: 1.4;
+        }
+        
+        .start-chat-btn {
+            background: linear-gradient(135deg, var(--primary-color, #007bff) 0%, var(--secondary-color, #0056b3) 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin: 0 auto 1rem;
+            transition: transform 0.2s;
+        }
+        
+        .start-chat-btn:hover {
+            transform: translateY(-1px);
+        }
+        
+        .response-time {
+            color: #666;
+            font-size: 0.8rem;
+            margin: 0;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            max-height: 300px;
+        }
+        
+        .message {
+            margin-bottom: 1rem;
+        }
+        
+        .bot-message .message-content {
+            background: #f1f3f5;
+            color: #333;
+            padding: 0.75rem 1rem;
+            border-radius: 18px 18px 18px 4px;
+            display: inline-block;
+            max-width: 80%;
+        }
+        
+        .chat-input-container {
+            display: flex;
+            padding: 1rem;
+            gap: 0.5rem;
+            border-top: 1px solid #eee;
+        }
+        
+        .chat-input-container input {
+            flex: 1;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            outline: none;
+        }
+        
+        .chat-input-container button {
+            background: var(--primary-color, #007bff);
+            color: white;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 50%;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+        
+        .chat-footer {
+            text-align: center;
+            padding: 0.5rem;
+            font-size: 0.7rem;
+            color: #999;
+            border-top: 1px solid #eee;
+        }
+        
+        .back-btn, .close-preview-btn {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .back-btn:hover, .close-preview-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
         /* Integration section */
         .integration-section {
             padding: 3rem;
@@ -881,13 +1011,62 @@
                         
                         <!-- Chat Window -->
                         <div class="chat-window" id="chatWindow">
-                            <div class="chat-header">
-                                <div class="chat-avatar">
-                                    <i class="fas fa-robot"></i>
+                            <!-- New Conversation Screen (default view) -->
+                            <div class="new-conversation" id="newConversationPreview">
+                                <div class="chat-header">
+                                    <div class="chat-avatar">
+                                        <i class="fas fa-robot"></i>
+                                    </div>
+                                    <div class="chat-info">
+                                        <h4 id="previewCompanyName">Votre Entreprise</h4>
+                                        <p>En ligne maintenant</p>
+                                    </div>
+                                    <button class="close-preview-btn" onclick="toggleChatPreview()">
+                                        <i class="fas fa-times"></i>
+                                    </button>
                                 </div>
-                                <div class="chat-info">
-                                    <h4 id="previewCompanyName">Votre Entreprise</h4>
-                                    <p>En ligne maintenant</p>
+                                <div class="welcome-content">
+                                    <h3 id="previewWelcomeText">Bonjour ! Comment puis-je vous aider aujourd'hui ?</h3>
+                                    <button class="start-chat-btn" id="startChatPreview">
+                                        <i class="fas fa-comment"></i>
+                                        <span id="previewStartButtonText">Envoyer un message</span>
+                                    </button>
+                                    <p class="response-time" id="previewResponseTime">Nous répondons généralement en quelques minutes</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Chat Interface (hidden by default) -->
+                            <div class="chat-interface" id="chatInterfacePreview" style="display: none;">
+                                <div class="chat-header">
+                                    <div class="chat-avatar">
+                                        <i class="fas fa-robot"></i>
+                                    </div>
+                                    <div class="chat-info">
+                                        <h4 id="previewCompanyName2">Votre Entreprise</h4>
+                                        <p>En ligne maintenant</p>
+                                    </div>
+                                    <button class="back-btn" id="backToWelcomePreview">
+                                        <i class="fas fa-arrow-left"></i>
+                                    </button>
+                                    <button class="close-preview-btn" onclick="toggleChatPreview()">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                                <div class="chat-messages" id="chatMessagesPreview">
+                                    <div class="message bot-message">
+                                        <div class="message-content">
+                                            <span id="previewBotWelcome">Bonjour ! Comment puis-je vous aider ?</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="chat-input-container">
+                                    <input type="text" id="chatInputPreview" placeholder="Tapez votre message..." disabled>
+                                    <button id="sendButtonPreview" disabled>
+                                        <i class="fas fa-paper-plane"></i>
+                                    </button>
+                                </div>
+                                <div class="chat-footer">
+                                    <span>Powered by n8n</span>
                                 </div>
                             </div>
                         </div>
@@ -1087,17 +1266,127 @@
             const companyName = document.getElementById('companyName').value || 'Votre Entreprise';
             const primaryColor = document.getElementById('primaryColor').value;
             const secondaryColor = document.getElementById('secondaryColor').value;
+            const backgroundColor = document.getElementById('backgroundColor').value;
+            const fontColor = document.getElementById('fontColor').value;
+            const position = document.getElementById('position').value;
+            const logo = document.getElementById('logo').value;
+            const language = document.getElementById('language').value;
             
-            // Mettre à jour le nom de l'entreprise
-            const previewCompanyName = document.getElementById('previewCompanyName');
-            if (previewCompanyName) {
-                previewCompanyName.textContent = companyName;
-            }
+            // Textes selon la langue
+            const translations = {
+                'fr': {
+                    welcomeText: 'Bonjour ! Comment puis-je vous aider aujourd\'hui ?',
+                    sendMessage: 'Envoyer un message',
+                    responseTimeText: 'Nous répondons généralement en quelques minutes',
+                    placeholder: 'Tapez votre message...',
+                    botWelcome: 'Bonjour ! Comment puis-je vous aider ?'
+                },
+                'en': {
+                    welcomeText: 'Hello! How can I help you today?',
+                    sendMessage: 'Send a message',
+                    responseTimeText: 'We typically reply in a few minutes',
+                    placeholder: 'Type your message...',
+                    botWelcome: 'Hello! How can I help you?'
+                },
+                'es': {
+                    welcomeText: '¡Hola! ¿Cómo puedo ayudarte hoy?',
+                    sendMessage: 'Enviar mensaje',
+                    responseTimeText: 'Normalmente respondemos en unos minutos',
+                    placeholder: 'Escribe tu mensaje...',
+                    botWelcome: '¡Hola! ¿Cómo puedo ayudarte?'
+                },
+                'de': {
+                    welcomeText: 'Hallo! Wie kann ich Ihnen heute helfen?',
+                    sendMessage: 'Nachricht senden',
+                    responseTimeText: 'Wir antworten normalerweise innerhalb weniger Minuten',
+                    placeholder: 'Geben Sie Ihre Nachricht ein...',
+                    botWelcome: 'Hallo! Wie kann ich Ihnen helfen?'
+                }
+            };
+            
+            const t = translations[language] || translations['fr'];
+            
+            // Mettre à jour les textes
+            const elements = {
+                'previewCompanyName': companyName,
+                'previewCompanyName2': companyName,
+                'previewWelcomeText': t.welcomeText,
+                'previewStartButtonText': t.sendMessage,
+                'previewResponseTime': t.responseTimeText,
+                'previewBotWelcome': t.botWelcome
+            };
+            
+            Object.entries(elements).forEach(([id, text]) => {
+                const element = document.getElementById(id);
+                if (element) element.textContent = text;
+            });
+            
+            // Mettre à jour le placeholder
+            const chatInput = document.getElementById('chatInputPreview');
+            if (chatInput) chatInput.placeholder = t.placeholder;
             
             // Mettre à jour les couleurs
-            const chatHeader = document.querySelector('.chat-header');
-            if (chatHeader) {
-                chatHeader.style.background = `linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%)`;
+            const chatWindow = document.getElementById('chatWindow');
+            if (chatWindow) {
+                chatWindow.style.setProperty('--primary-color', primaryColor);
+                chatWindow.style.setProperty('--secondary-color', secondaryColor);
+                chatWindow.style.setProperty('--background-color', backgroundColor);
+                chatWindow.style.setProperty('--font-color', fontColor);
+                
+                // Appliquer la couleur de fond
+                chatWindow.style.backgroundColor = backgroundColor;
+                chatWindow.style.color = fontColor;
+            }
+            
+            // Mettre à jour les en-têtes de chat
+            const chatHeaders = document.querySelectorAll('.chat-header');
+            chatHeaders.forEach(header => {
+                header.style.background = `linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%)`;
+            });
+            
+            // Mettre à jour le bouton de démarrage
+            const startBtn = document.getElementById('startChatPreview');
+            if (startBtn) {
+                startBtn.style.background = `linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%)`;
+            }
+            
+            // Mettre à jour le bouton d'envoi
+            const sendBtn = document.getElementById('sendButtonPreview');
+            if (sendBtn) {
+                sendBtn.style.backgroundColor = primaryColor;
+            }
+            
+            // Mettre à jour le logo si fourni
+            const logoElements = document.querySelectorAll('.chat-avatar img');
+            if (logo && logo.trim()) {
+                logoElements.forEach(img => {
+                    img.src = logo;
+                    img.style.display = 'block';
+                });
+                // Cacher l'icône robot par défaut
+                const robotIcons = document.querySelectorAll('.chat-avatar i');
+                robotIcons.forEach(icon => icon.style.display = 'none');
+            } else {
+                // Afficher l'icône robot par défaut
+                logoElements.forEach(img => img.style.display = 'none');
+                const robotIcons = document.querySelectorAll('.chat-avatar i');
+                robotIcons.forEach(icon => icon.style.display = 'block');
+            }
+            
+            // Mettre à jour la position du widget
+            const chatbotPreview = document.getElementById('chatbotPreview');
+            if (chatbotPreview) {
+                if (position === 'left') {
+                    chatbotPreview.style.right = 'auto';
+                    chatbotPreview.style.left = '20px';
+                    chatWindow.style.right = 'auto';
+                    chatWindow.style.left = '20px';
+                } else {
+                    chatbotPreview.style.left = 'auto';
+                    chatbotPreview.style.right = '20px';
+                    chatWindow.style.left = 'auto';
+                    chatWindow.style.right = '20px';
+                }
             }
         }
         
@@ -1245,13 +1534,53 @@
                 chatbotPreview.addEventListener('click', toggleChatPreview);
             }
             
+            // Ajouter les événements pour l'aperçu
+            const startChatBtn = document.getElementById('startChatPreview');
+            const backBtn = document.getElementById('backToWelcomePreview');
+            const newConversation = document.getElementById('newConversationPreview');
+            const chatInterface = document.getElementById('chatInterfacePreview');
+            
+            if (startChatBtn) {
+                startChatBtn.addEventListener('click', function() {
+                    if (newConversation && chatInterface) {
+                        newConversation.style.display = 'none';
+                        chatInterface.style.display = 'flex';
+                    }
+                });
+            }
+            
+            if (backBtn) {
+                backBtn.addEventListener('click', function() {
+                    if (chatInterface && newConversation) {
+                        chatInterface.style.display = 'none';
+                        newConversation.style.display = 'flex';
+                        // S'assurer que l'écran de bienvenue reprend sa structure correcte
+                        newConversation.style.flexDirection = 'column';
+                        newConversation.style.height = '100%';
+                    }
+                });
+            }
+            
             // Mettre à jour l'aperçu en temps réel
-            const inputs = ['language', 'primaryColor', 'secondaryColor', 'backgroundColor', 'fontColor', 'position', 'logo', 'companyName'];
+            const inputs = [
+                'language', 
+                'primaryColor', 
+                'secondaryColor', 
+                'backgroundColor', 
+                'fontColor', 
+                'position', 
+                'logo', 
+                'companyName',
+                'welcomeText',
+                'responseTimeText'
+            ];
             inputs.forEach(id => {
                 const element = document.getElementById(id);
                 if (element) {
                     element.addEventListener('input', updateChatPreview);
                     element.addEventListener('change', updateChatPreview);
+                    // Ajouter aussi l'événement 'keyup' pour une réactivité immédiate
+                    element.addEventListener('keyup', updateChatPreview);
                 }
             });
             
