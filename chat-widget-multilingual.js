@@ -319,8 +319,6 @@
     styleSheet.textContent = styles;
     document.head.appendChild(styleSheet);
 
-    console.log("Widget configuration:");
-
     // Default configuration
     const defaultConfig = {
         webhook: {
