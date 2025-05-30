@@ -319,6 +319,8 @@
     styleSheet.textContent = styles;
     document.head.appendChild(styleSheet);
 
+    console.log("Widget configuration:");
+
     // Default configuration
     const defaultConfig = {
         webhook: {
@@ -481,7 +483,6 @@
     let conversationStarted = false;
     let currentSessionId = '';
 
-    console.log("Widget configuration:", config);
     
     // Modifier la fonction startNewConversation pour ne démarrer qu'une seule fois
     async function startNewConversation() {
