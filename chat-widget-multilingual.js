@@ -377,9 +377,8 @@
     const chatContainer = document.createElement('div');
     chatContainer.className = `chat-container${config.style.position === 'left' ? ' position-left' : ''}`;
     
-    // Remplacer la section newConversationHTML par :
     const newConversationHTML = `
-        <div class="chat-header">
+        <div class="welcome-header">
             <div class="chat-avatar">
                 <img src="${config.branding.logo}" alt="${config.branding.name}" style="display: ${config.branding.logo ? 'block' : 'none'};">
                 <i class="fas fa-robot" style="display: ${config.branding.logo ? 'none' : 'block'};"></i>
@@ -410,7 +409,35 @@
                 </div>
                 <div class="chat-info">
                     <div class="chat-title">${config.branding.name}</div>
-                    <div class="chat-status">En ligne maintenant</div>
+                    // Ligne 345 - Changer la langue par défaut
+                    language: 'fr'
+                    
+                    // Ligne 412 - Utiliser les traductions pour le statut
+                    <div class="chat-status">${t.onlineStatus || 'En ligne maintenant'}</div>
+                    
+                    // Ligne 443 - Corriger le sélecteur
+                    const messageInput = chatContainer.querySelector('.message-input');
+                    const sendButton = chatContainer.querySelector('.send-button');
+                    
+                    // Ajouter les traductions manquantes dans widgetTranslations
+                    fr: {
+                        welcomeText: "Salut 👋, comment pouvons-nous vous aider ?",
+                        responseTimeText: "Nous répondons généralement immédiatement",
+                        sendMessage: "Envoyez-nous un message",
+                        placeholder: "Tapez votre message ici...",
+                        send: "Envoyer",
+                        poweredBy: "Propulsé par n8n",
+                        onlineStatus: "En ligne maintenant"
+                    },
+                    en: {
+                        welcomeText: "Hi 👋, how can we help?",
+                        responseTimeText: "We typically respond right away",
+                        sendMessage: "Send us a message",
+                        placeholder: "Type your message here...",
+                        send: "Send",
+                        poweredBy: "Powered by n8n",
+                        onlineStatus: "Online now"
+                    }
                 </div>
                 <button class="close-button">×</button>
             </div>
@@ -490,89 +517,42 @@
             // Dans la fonction startNewConversation, remplacer les lignes 490-495 :
             // Ajouter le message initial seulement s'il n'y a pas encore de messages
             if (messagesContainer.children.length === 0) {
+                // DÉBOGAGE - Ajoutez ces lignes pour diagnostiquer
+                console.log('Config branding welcomeText:', config.branding.welcomeText);
+                console.log('Translation welcomeText:', t.welcomeText);
+                console.log('Current language:', config.language);
+                console.log('Available translations:', t);
+                
                 const botMessageDiv = document.createElement('div');
                 botMessageDiv.className = 'chat-message bot';
+                
                 // Utiliser le welcomeText au lieu de responseData.output
-                botMessageDiv.textContent = config.branding.welcomeText || t.welcomeText;
+                const welcomeMessage = config.branding.welcomeText || t.welcomeText || 'Message de bienvenue par défaut';
+                console.log('Final welcome message:', welcomeMessage);
+                
+                botMessageDiv.textContent = welcomeMessage;
                 messagesContainer.appendChild(botMessageDiv);
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                
+                console.log('Message ajouté au DOM:', botMessageDiv);
             }
         } catch (error) {
             console.error('Error:', error);
         }
     }
 
-    // Nouvelle fonction pour afficher l'interface de chat
-    // Remplacer les lignes 443-447 par :
-    .n8n-chat-widget .start-chat-btn {
-        background: linear-gradient(135deg, var(--chat--color-primary), var(--chat--color-secondary));
-        color: white;
-        border: none;
-        padding: 12px 24px;
-        border-radius: 25px;
-        cursor: pointer;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        transition: all 0.3s ease;
-        font-family: inherit;
-        font-size: 14px;
-        width: 100%;
-        justify-content: center;
-    }
-    
-    .n8n-chat-widget .start-chat-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(133, 79, 255, 0.3);
-    }
-    
-    .n8n-chat-widget .chat-input {
-        padding: 16px;
-        border-top: 1px solid rgba(133, 79, 255, 0.1);
-        display: flex;
-        gap: 8px;
-        align-items: center;
-    }
-    
-    .n8n-chat-widget .message-input {
-        flex: 1;
-        border: 1px solid rgba(133, 79, 255, 0.2);
-        border-radius: 20px;
-        padding: 10px 16px;
-        font-family: inherit;
-        font-size: 14px;
-        outline: none;
-        resize: none;
-        background: var(--chat--color-background);
-        color: var(--chat--color-font);
-    }
-    
-    .n8n-chat-widget .send-button {
-        background: var(--chat--color-primary);
-        color: white;
-        border: none;
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.2s;
-    }
-
-    // Nouvelle fonction pour revenir à l'écran d'accueil (sans réinitialiser)
+    // Fonction pour afficher l'interface de chat
     function showChatInterface() {
-        chatContainer.querySelector('.chat-header').style.display = 'none';
+        // Cacher l'écran de bienvenue et afficher l'interface de chat
         chatContainer.querySelector('.new-conversation').style.display = 'none';
+        chatInterface.style.display = 'flex';
         chatInterface.classList.add('active');
     }
 
-    // Nouvelle fonction pour revenir à l'écran d'accueil (sans réinitialiser)
+    // Fonction pour revenir à l'écran d'accueil
     function showWelcomeScreen() {
         chatInterface.classList.remove('active');
-        chatContainer.querySelector('.brand-header').style.display = 'flex';
+        chatInterface.style.display = 'none';
         chatContainer.querySelector('.new-conversation').style.display = 'flex';
         
         // Modifier le texte du bouton si une conversation existe
