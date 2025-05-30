@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatBot Studio - Générateur IA Moderne</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #8b5cf6;
+            --accent: #06b6d4;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --dark: #0f172a;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-400: #94a3b8;
+            --gray-500: #64748b;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1e293b;
+            --gray-900: #0f172a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #6366f1 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Animated background particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.3; }
+            50% { transform: translateY(-20px) rotate(180deg); opacity: 0.8; }
+        }
+
+        /* Hero section with glassmorphism */
+        .hero {
+            position: relative;
+            z-index: 10;
+            padding: 2rem;
+            text-align: center;
+            color: white;
+            margin-bottom: 2rem;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #fff 0%, #e0e7ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+            font-weight: 400;
+        }
+
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            text-align: center;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            opacity: 0.8;
+        }
+
+        /* Main container with glassmorphism */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .main-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 24px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            animation: slideInUp 0.8s ease-out;
+        }
+
+        /* Progress steps */
+        .progress-container {
+            padding: 2rem 2rem 0;
+            background: linear-gradient(135deg, var(--gray-50) 0%, #fff 100%);
+        }
+
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        .progress-line {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--gray-200);
+            z-index: 1;
+        }
+
+        .progress-line-active {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+            z-index: 2;
+            width: 0%;
+            transition: width 0.8s ease;
+        }
+
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 3;
+            flex: 1;
+        }
+
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--gray-200);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: var(--gray-500);
+            transition: all 0.3s ease;
+            margin-bottom: 0.5rem;
+        }
+
+        .step.active .step-circle {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+        }
+
+        .step.completed .step-circle {
+            background: var(--success);
+            color: white;
+        }
+
+        .step-title {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--gray-600);
+            text-align: center;
+        }
+
+        .step.active .step-title {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        /* Content grid */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            padding: 3rem;
+        }
+
+        @media (max-width: 1024px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+        }
+
+        /* Form section */
+        .form-section {
+            animation: fadeInLeft 0.6s ease-out;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--gray-700);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--gray-200);
+            border-radius: 12px;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .color-input-group {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            border: 2px solid var(--gray-200);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .color-input-group:hover {
+            border-color: var(--primary);
+            transform: translateY(-1px);
+        }
+
+        .color-input {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .color-label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--gray-700);
+        }
+
+        /* Generate button */
+        .generate-btn {
+            width: 100%;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            margin-top: 2rem;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(99, 102, 241, 0.3);
+        }
+
+        .generate-btn:active {
+            transform: translateY(0);
+        }
+
+        .generate-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .generate-btn:hover::before {
+            left: 100%;
+        }
+
+        /* Preview section */
+        .preview-section {
+            animation: fadeInRight 0.6s ease-out;
+            position: sticky;
+            top: 2rem;
+        }
+
+        .preview-card {
+            background: var(--gray-50);
+            border: 2px solid var(--gray-200);
+            border-radius: 16px;
+            padding: 2rem;
+            height: 500px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .preview-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .chatbot-preview {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+        }
+
+        .chatbot-preview:hover {
+            transform: scale(1.1);
+        }
+
+        .chat-window {
+            position: absolute;
+            bottom: 90px;
+            right: 20px;
+            width: 300px;
+            height: 400px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            border: 1px solid var(--gray-200);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .chat-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chat-info h4 {
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .chat-info p {
+            font-size: 0.75rem;
+            opacity: 0.8;
+        }
+
+        /* Integration section */
+        .integration-section {
+            padding: 3rem;
+            background: linear-gradient(135deg, var(--gray-50) 0%, white 100%);
+            border-top: 1px solid var(--gray-200);
+            display: none;
+        }
+
+        .integration-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .integration-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 0.5rem;
+        }
+
+        .success-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--success);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+        }
+
+        .code-container {
+            background: var(--gray-900);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .code-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--gray-700);
+        }
+
+        .code-title {
+            color: var(--gray-300);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .code-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .code-btn {
+            padding: 0.5rem 1rem;
+            background: var(--gray-700);
+            color: var(--gray-300);
+            border: none;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .code-btn:hover {
+            background: var(--gray-600);
+            color: white;
+        }
+
+        .code-content {
+            color: var(--gray-300);
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .action-btn {
+            padding: 1rem 1.5rem;
+            border: 2px solid var(--gray-200);
+            border-radius: 12px;
+            background: white;
+            color: var(--gray-700);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .action-btn.primary {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .action-btn.primary:hover {
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+        }
+
+        /* Instructions */
+        .instructions {
+            background: linear-gradient(135deg, #e0f2fe 0%, #f3e5f5 100%);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .instructions h4 {
+            color: var(--gray-900);
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .instructions ol {
+            list-style: none;
+            counter-reset: step-counter;
+        }
+
+        .instructions li {
+            counter-increment: step-counter;
+            margin-bottom: 0.75rem;
+            padding-left: 2rem;
+            position: relative;
+            color: var(--gray-700);
+        }
+
+        .instructions li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 1.5rem;
+            height: 1.5rem;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Loading animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-stats {
+                gap: 1.5rem;
+            }
+            
+            .content-grid {
+                padding: 2rem;
+            }
+            
+            .color-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated particles background -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>🚀 ChatBot Studio</h1>
+            <p>Créez des chatbots IA personnalisés en quelques clics. Moderne, puissant, et prêt à intégrer.</p>
+            
+            <div class="hero-stats">
+                <div class="stat">
+                    <div class="stat-number">10K+</div>
+                    <div class="stat-label">Chatbots créés</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">99.9%</div>
+                    <div class="stat-label">Uptime</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">< 5min</div>
+                    <div class="stat-label">Setup</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container">
+        <div class="main-card">
+            <!-- Progress Steps -->
+            <div class="progress-container">
+                <div class="progress-steps">
+                    <div class="progress-line"></div>
+                    <div class="progress-line-active" id="progressLine"></div>
+                    
+                    <div class="step active" data-step="1">
+                        <div class="step-circle">
+                            <i class="fas fa-cog"></i>
+                        </div>
+                        <div class="step-title">Configuration</div>
+                    </div>
+                    
+                    <div class="step" data-step="2">
+                        <div class="step-circle">
+                            <i class="fas fa-magic"></i>
+                        </div>
+                        <div class="step-title">Génération</div>
+                    </div>
+                    
+                    <div class="step" data-step="3">
+                        <div class="step-circle">
+                            <i class="fas fa-rocket"></i>
+                        </div>
+                        <div class="step-title">Intégration</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="content-grid">
+                <!-- Form Section -->
+                <div class="form-section">
+                    <h2 class="section-title">
+                        <i class="fas fa-sliders-h"></i>
+                        Configuration du Chatbot
+                    </h2>
+
+                    <div class="form-group">
+                        <label class="form-label" for="language">
+                            <i class="fas fa-globe"></i> Langue
+                        </label>
+                        <select id="language" class="form-input">
+                            <option value="fr">🇫🇷 Français</option>
+                            <option value="en">🇺🇸 English</option>
+                            <option value="es">🇪🇸 Español</option>
+                            <option value="de">🇩🇪 Deutsch</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="webhookUrl">
+                            <i class="fas fa-link"></i> URL Webhook N8n
+                        </label>
+                        <input type="url" id="webhookUrl" class="form-input" 
+                               placeholder="https://votre-n8n.com/webhook/...">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="route">
+                            <i class="fas fa-route"></i> Route
+                        </label>
+                        <input type="text" id="route" class="form-input" 
+                               value="general" placeholder="general">
+                    </div>
+
+                    <h3 class="section-title">
+                        <i class="fas fa-palette"></i>
+                        Branding
+                    </h3>
+
+                    <div class="form-group">
+                        <label class="form-label" for="logo">
+                            <i class="fas fa-image"></i> URL du Logo
+                        </label>
+                        <input type="url" id="logo" class="form-input" 
+                               placeholder="https://exemple.com/logo.png">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="companyName">
+                            <i class="fas fa-building"></i> Nom de l'entreprise
+                        </label>
+                        <input type="text" id="companyName" class="form-input" 
+                               placeholder="Mon Entreprise">
+                    </div>
+
+                    <h3 class="section-title">
+                        <i class="fas fa-paint-brush"></i>
+                        Couleurs
+                    </h3>
+
+                    <div class="color-grid">
+                        <div class="color-input-group">
+                            <input type="color" id="primaryColor" class="color-input" value="#6366f1">
+                            <span class="color-label">Primaire</span>
+                        </div>
+                        
+                        <div class="color-input-group">
+                            <input type="color" id="secondaryColor" class="color-input" value="#8b5cf6">
+                            <span class="color-label">Secondaire</span>
+                        </div>
+                        
+                        <div class="color-input-group">
+                            <input type="color" id="backgroundColor" class="color-input" value="#ffffff">
+                            <span class="color-label">Arrière-plan</span>
+                        </div>
+                        
+                        <div class="color-input-group">
+                            <input type="color" id="fontColor" class="color-input" value="#1e293b">
+                            <span class="color-label">Texte</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="position">
+                            <i class="fas fa-arrows-alt"></i> Position
+                        </label>
+                        <select id="position" class="form-input">
+                            <option value="right">Droite</option>
+                            <option value="left">Gauche</option>
+                        </select>
+                    </div>
+
+                    <button class="generate-btn" onclick="generateChatbot()">
+                        <i class="fas fa-magic"></i>
+                        Générer mon Chatbot
+                    </button>
+                </div>
+
+                <!-- Preview Section -->
+                <div class="preview-section">
+                    <div class="preview-card">
+                        <h3 class="preview-title">
+                            <i class="fas fa-eye"></i>
+                            Aperçu en temps réel
+                        </h3>
+                        
+                        <div id="previewContent">
+                            <div style="text-align: center; margin-top: 150px; color: var(--gray-500);">
+                                <i class="fas fa-robot" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3;"></i>
+                                <p>Configurez votre chatbot pour voir l'aperçu</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Chatbot Preview -->
+                        <div class="chatbot-preview" id="chatbotPreview">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                        
+                        <!-- Chat Window -->
+                        <div class="chat-window" id="chatWindow">
+                            <div class="chat-header">
+                                <div class="chat-avatar">
+                                    <i class="fas fa-robot"></i>
+                                </div>
+                                <div class="chat-info">
+                                    <h4 id="previewCompanyName">Votre Entreprise</h4>
+                                    <p>En ligne maintenant</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Integration Section -->
+            <div class="integration-section" id="integrationSection">
+                <div class="integration-header">
+                    <div class="success-badge">
+                        <i class="fas fa-check"></i>
+                        Succès
+                    </div>
+                    <h2 class="integration-title">Votre chatbot est prêt ! 🎉</h2>
+                    <p style="color: var(--gray-600); font-size: 1.125rem;">Copiez le script ci-dessous et intégrez-le sur votre site web.</p>
+                </div>
+
+                <div class="code-container">
+                    <div class="code-header">
+                        <span class="code-title">Script d'intégration</span>
+                        <div class="code-actions">
+                            <button class="code-btn" onclick="copyCode()">
+                                <i class="fas fa-copy"></i> Copier
+                            </button>
+                            <button class="code-btn" onclick="downloadCode()">
+                                <i class="fas fa-download"></i> Télécharger
+                            </button>
+                        </div>
+                    </div>
+                    <div class="code-content" id="generatedCode"></div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="action-btn primary" onclick="copyCode()">
+                        <i class="fas fa-copy"></i>
+                        Copier le script
+                    </button>
+                    <button class="action-btn" onclick="downloadCode()">
+                        <i class="fas fa-download"></i>
+                        Télécharger
+                    </button>
+                    <button class="action-btn" onclick="testChatbot()">
+                        <i class="fas fa-play"></i>
+                        Tester
+                    </button>
+                    <button class="action-btn" onclick="showInstructions()">
+                        <i class="fas fa-book"></i>
+                        Guide
+                    </button>
+                </div>
+
+                <div class="instructions">
+                    <h4>
+                        <i class="fas fa-lightbulb"></i>
+                        Instructions d'intégration
+                    </h4>
+                    <ol>
+                        <li><strong>Copiez</strong> le script ci-dessus</li>
+                        <li><strong>Ouvrez</strong> le code source de votre site web</li>
+                        <li><strong>Collez</strong> le script juste avant la balise <code>&lt;/body&gt;</code></li>
+                        <li><strong>Sauvegardez</strong> et rafraîchissez votre page</li>
+                    </ol>
+                    <p style="margin-top: 1rem; font-weight: 500; color: var(--success);">✨ C'est tout ! Votre chatbot apparaîtra automatiquement.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Définir les traductions directement dans le HTML
+        const translations = {
+            fr: {
+                welcomeText: "Salut 👋, comment pouvons-nous vous aider ?",
+                responseTimeText: "Nous répondons généralement immédiatement",
+                sendMessage: "Envoyez-nous un message",
+                placeholder: "Tapez votre message ici...",
+                send: "Envoyer",
+                poweredBy: "Propulsé par n8n"
+            },
+            en: {
+                welcomeText: "Hi 👋, how can we help?",
+                responseTimeText: "We typically respond right away",
+                sendMessage: "Send us a message",
+                placeholder: "Type your message here...",
+                send: "Send",
+                poweredBy: "Powered by n8n"
+            },
+            es: {
+                welcomeText: "Hola 👋, ¿cómo podemos ayudarte?",
+                responseTimeText: "Normalmente respondemos de inmediato",
+                sendMessage: "Envíanos un mensaje",
+                placeholder: "Escribe tu mensaje aquí...",
+                send: "Enviar",
+                poweredBy: "Desarrollado por n8n"
+            },
+            de: {
+                welcomeText: "Hallo 👋, wie können wir helfen?",
+                responseTimeText: "Wir antworten normalerweise sofort",
+                sendMessage: "Senden Sie uns eine Nachricht",
+                placeholder: "Geben Sie hier Ihre Nachricht ein...",
+                send: "Senden",
+                poweredBy: "Unterstützt von n8n"
+            }
+        };
+
+        // Fonction principale pour générer le chatbot
+        function generateChatbot() {
+            const config = {
+                language: document.getElementById('language').value,
+                webhookUrl: document.getElementById('webhookUrl').value,
+                route: document.getElementById('route').value,
+                logo: document.getElementById('logo').value,
+                companyName: document.getElementById('companyName').value,
+                primaryColor: document.getElementById('primaryColor').value,
+                secondaryColor: document.getElementById('secondaryColor').value,
+                backgroundColor: document.getElementById('backgroundColor').value,
+                fontColor: document.getElementById('fontColor').value,
+                position: document.getElementById('position').value
+            };
+            
+            const t = translations[config.language] || translations['fr'];
+            
+            const integrationScript = `<script>
+    window.ChatWidgetConfig = {
+        webhook: {
+            url: '${config.webhookUrl}',
+            route: '${config.route}'
+        },
+        branding: {
+            logo: '${config.logo}',
+            name: '${config.companyName}',
+            welcomeText: '${t.welcomeText}',
+            responseTimeText: '${t.responseTimeText}',
+            poweredBy: {
+                text: '${t.poweredBy}',
+                link: 'https://n8n.partnerlinks.io/m8a94i19zhqq?utm_source=nocodecreative.io'
+            }
+        },
+        style: {
+            primaryColor: '${config.primaryColor}',
+            secondaryColor: '${config.secondaryColor}',
+            position: '${config.position}',
+            backgroundColor: '${config.backgroundColor}',
+            fontColor: '${config.fontColor}'
+        },
+        language: '${config.language}'
+    };
+<\/script>
+<script src="https://cdn.jsdelivr.net/gh/ClosiQode/n8n-chatbot-template@main/chat-widget-multilingual.js"><\/script>`;
+            
+            // Afficher le code généré
+            document.getElementById('generatedCode').textContent = integrationScript;
+            
+            // Mettre à jour les étapes de progression
+            updateProgressSteps(2);
+            
+            // Afficher la section d'intégration
+            document.getElementById('integrationSection').style.display = 'block';
+            document.getElementById('integrationSection').scrollIntoView({ behavior: 'smooth' });
+            
+            // Sauvegarder pour les autres fonctions
+            window.currentIntegrationScript = integrationScript;
+        }
+        
+        // Fonction pour mettre à jour les étapes de progression
+        function updateProgressSteps(activeStep) {
+            const steps = document.querySelectorAll('.step');
+            const progressLine = document.querySelector('.progress-line-active');
+            
+            steps.forEach((step, index) => {
+                if (index < activeStep) {
+                    step.classList.add('active');
+                }
+            });
+            
+            // Animer la barre de progression
+            const progressWidth = ((activeStep - 1) / (steps.length - 1)) * 100;
+            progressLine.style.width = progressWidth + '%';
+        }
+        
+        // Fonction pour l'aperçu interactif du chatbot
+        function toggleChatPreview() {
+            const chatWindow = document.getElementById('chatWindow');
+            const isVisible = chatWindow.style.display === 'block';
+            
+            if (isVisible) {
+                chatWindow.style.display = 'none';
+            } else {
+                chatWindow.style.display = 'block';
+                updateChatPreview();
+            }
+        }
+        
+        // Mettre à jour l'aperçu du chat avec les valeurs actuelles
+        function updateChatPreview() {
+            const companyName = document.getElementById('companyName').value || 'Votre Entreprise';
+            const primaryColor = document.getElementById('primaryColor').value;
+            const secondaryColor = document.getElementById('secondaryColor').value;
+            
+            // Mettre à jour le nom de l'entreprise
+            const previewCompanyName = document.getElementById('previewCompanyName');
+            if (previewCompanyName) {
+                previewCompanyName.textContent = companyName;
+            }
+            
+            // Mettre à jour les couleurs
+            const chatHeader = document.querySelector('.chat-header');
+            if (chatHeader) {
+                chatHeader.style.background = `linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%)`;
+            }
+        }
+        
+        // Fonctions pour les actions
+        function copyCode() {
+            const code = window.currentIntegrationScript;
+            if (!code) {
+                alert('⚠️ Veuillez d\'abord générer le chatbot');
+                return;
+            }
+            
+            navigator.clipboard.writeText(code).then(() => {
+                // Animation de succès
+                const btn = event.target;
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i> Copié !';
+                btn.style.background = 'var(--success)';
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.style.background = '';
+                }, 2000);
+            }).catch(err => {
+                console.error('Erreur lors de la copie:', err);
+                alert('❌ Erreur lors de la copie');
+            });
+        }
+        
+        function downloadCode() {
+            const code = window.currentIntegrationScript;
+            if (!code) {
+                alert('⚠️ Veuillez d\'abord générer le chatbot');
+                return;
+            }
+            
+            const blob = new Blob([code], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'chatbot-integration.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        function testChatbot() {
+            const code = window.currentIntegrationScript;
+            if (!code) {
+                alert('⚠️ Veuillez d\'abord générer le chatbot');
+                return;
+            }
+            
+            const testPage = `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Test du Chatbot</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 40px; background: #f5f5f5; }
+        .test-container { max-width: 800px; margin: 0 auto; background: white; padding: 40px; border-radius: 10px; }
+        h1 { color: #333; text-align: center; }
+        p { color: #666; text-align: center; margin-bottom: 30px; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 Page de test du chatbot</h1>
+        <p>Cette page vous permet de tester votre chatbot avant de l'intégrer sur votre site.</p>
+        <p>Le chatbot devrait apparaître en bas de cette page.</p>
+    </div>
+    
+    ${code}
+</body>
+</html>`;
+            
+            const testWindow = window.open('', '_blank', 'width=1200,height=800');
+            testWindow.document.write(testPage);
+        }
+        
+        function showInstructions() {
+            const instructions = `# 📋 Instructions d'intégration détaillées
+
+## Étape 1: Préparation
+- Assurez-vous d'avoir accès au code source de votre site web
+- Localisez la balise </body> dans vos pages HTML
+
+## Étape 2: Intégration
+1. Copiez le script généré
+2. Collez-le juste AVANT la balise </body>
+3. Sauvegardez votre fichier
+
+## Étape 3: Test
+- Rafraîchissez votre page web
+- Le chatbot devrait apparaître en bas à droite (ou gauche selon votre configuration)
+- Testez l'envoi d'un message
+
+## Dépannage
+- Vérifiez que l'URL du webhook N8n est correcte
+- Assurez-vous que votre workflow N8n est activé
+- Consultez la console du navigateur pour d'éventuelles erreurs`;
+            
+            const instructionsWindow = window.open('', '_blank', 'width=800,height=600');
+            instructionsWindow.document.write(`
+                <html>
+                <head>
+                    <title>Instructions d'intégration</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; line-height: 1.6; }
+                        pre { background: #f4f4f4; padding: 15px; border-radius: 5px; overflow-x: auto; }
+                        code { background: #f4f4f4; padding: 2px 4px; border-radius: 3px; }
+                        h1, h2, h3 { color: #333; }
+                    </style>
+                </head>
+                <body>
+                    <pre style="white-space: pre-wrap;">${instructions}</pre>
+                </body>
+                </html>
+            `);
+        }
+        
+        // Créer les particules animées
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 50;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+        
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Créer les particules
+            createParticles();
+            
+            // Rendre l'aperçu du chatbot cliquable
+            const chatbotPreview = document.getElementById('chatbotPreview');
+            if (chatbotPreview) {
+                chatbotPreview.addEventListener('click', toggleChatPreview);
+            }
+            
+            // Mettre à jour l'aperçu en temps réel
+            const inputs = ['language', 'primaryColor', 'secondaryColor', 'backgroundColor', 'fontColor', 'position', 'logo', 'companyName'];
+            inputs.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.addEventListener('input', updateChatPreview);
+                    element.addEventListener('change', updateChatPreview);
+                }
+            });
+            
+            // Initialiser l'aperçu
+            updateChatPreview();
+        });
+    </script>
+</body>
+</html>
