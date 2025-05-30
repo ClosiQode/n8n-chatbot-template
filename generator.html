@@ -1175,6 +1175,14 @@
 
         // Fonction principale pour générer le chatbot
         function generateChatbot() {
+            // Validation des champs obligatoires
+            const webhookUrl = document.getElementById('webhookUrl').value;
+            if (!webhookUrl || !webhookUrl.trim()) {
+                alert('⚠️ Veuillez saisir l\'URL du webhook N8n');
+                document.getElementById('webhookUrl').focus();
+                return;
+            }
+            
             const config = {
                 language: document.getElementById('language').value,
                 webhookUrl: document.getElementById('webhookUrl').value,
@@ -1440,6 +1448,16 @@
                 return;
             }
             
+            // Récupérer la configuration actuelle
+            const config = {
+                language: document.getElementById('language').value,
+                primaryColor: document.getElementById('primaryColor').value,
+                secondaryColor: document.getElementById('secondaryColor').value,
+                backgroundColor: document.getElementById('backgroundColor').value,
+                fontColor: document.getElementById('fontColor').value,
+                position: document.getElementById('position').value
+            };
+            
             const testPage = `<!DOCTYPE html>
 <html>
 <head>
@@ -1450,13 +1468,21 @@
         .test-container { max-width: 800px; margin: 0 auto; background: white; padding: 40px; border-radius: 10px; }
         h1 { color: #333; text-align: center; }
         p { color: #666; text-align: center; margin-bottom: 30px; }
+        
+        /* Styles personnalisés pour le chatbot */
+        .chat-widget {
+            --primary-color: ${config.primaryColor};
+            --secondary-color: ${config.secondaryColor};
+            --background-color: ${config.backgroundColor};
+            --font-color: ${config.fontColor};
+        }
     </style>
 </head>
 <body>
     <div class="test-container">
         <h1>🧪 Page de test du chatbot</h1>
         <p>Cette page vous permet de tester votre chatbot avant de l'intégrer sur votre site.</p>
-        <p>Le chatbot devrait apparaître en bas de cette page.</p>
+        <p>Le chatbot devrait apparaître en bas de cette page avec vos couleurs personnalisées.</p>
     </div>
     
     ${code}
