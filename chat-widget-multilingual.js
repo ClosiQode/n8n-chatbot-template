@@ -377,35 +377,49 @@
     const chatContainer = document.createElement('div');
     chatContainer.className = `chat-container${config.style.position === 'left' ? ' position-left' : ''}`;
     
+    // Remplacer la section newConversationHTML par :
     const newConversationHTML = `
-        <div class="brand-header">
-            <img src="${config.branding.logo}" alt="${config.branding.name}">
-            <span>${config.branding.name}</span>
+        <div class="chat-header">
+            <div class="chat-avatar">
+                <img src="${config.branding.logo}" alt="${config.branding.name}" style="display: ${config.branding.logo ? 'block' : 'none'};">
+                <i class="fas fa-robot" style="display: ${config.branding.logo ? 'none' : 'block'};"></i>
+            </div>
+            <div class="chat-info">
+                <div class="chat-title">${config.branding.name}</div>
+                <div class="chat-status">En ligne maintenant</div>
+            </div>
             <button class="close-button">×</button>
         </div>
         <div class="new-conversation">
-            <h2 class="welcome-text">${config.branding.welcomeText || t.welcomeText}</h2>
-            <button class="new-chat-btn">
-                <svg class="message-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                    <path fill="currentColor" d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.2L4 17.2V4h16v12z"/>
-                </svg>
+            <h2 class="welcome-message">${config.branding.welcomeText || t.welcomeText}</h2>
+            <button class="start-chat-btn">
+                <i class="fas fa-comment"></i>
                 ${t.sendMessage}
             </button>
-            <p class="response-text">${config.branding.responseTimeText || t.responseTimeText}</p>
+            <p class="response-time">${config.branding.responseTimeText || t.responseTimeText}</p>
         </div>
     `;
-
+    
     const chatInterfaceHTML = `
         <div class="chat-interface">
-            <div class="brand-header">
-                <img src="${config.branding.logo}" alt="${config.branding.name}">
-                <span>${config.branding.name}</span>
+            <div class="chat-header">
+                <button class="back-button">←</button>
+                <div class="chat-avatar">
+                    <img src="${config.branding.logo}" alt="${config.branding.name}" style="display: ${config.branding.logo ? 'block' : 'none'};">
+                    <i class="fas fa-robot" style="display: ${config.branding.logo ? 'none' : 'block'};"></i>
+                </div>
+                <div class="chat-info">
+                    <div class="chat-title">${config.branding.name}</div>
+                    <div class="chat-status">En ligne maintenant</div>
+                </div>
                 <button class="close-button">×</button>
             </div>
             <div class="chat-messages"></div>
             <div class="chat-input">
-                <textarea placeholder="${t.placeholder}" rows="1"></textarea>
-                <button type="submit">${t.send}</button>
+                <input type="text" placeholder="${t.placeholder}" class="message-input">
+                <button type="submit" class="send-button">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
             </div>
             <div class="chat-footer">
                 <a href="${config.branding.poweredBy.link}" target="_blank">${config.branding.poweredBy.text || t.poweredBy}</a>
@@ -436,8 +450,22 @@
         return crypto.randomUUID();
     }
 
+    // Ajouter une variable pour suivre l'état de la conversation
+    let conversationStarted = false;
+    let currentSessionId = '';
+    
+    // Modifier la fonction startNewConversation pour ne démarrer qu'une seule fois
     async function startNewConversation() {
+        // Ne démarrer une nouvelle conversation que si aucune n'est en cours
+        if (conversationStarted && currentSessionId) {
+            // Si une conversation existe déjà, juste basculer vers l'interface de chat
+            showChatInterface();
+            return;
+        }
+        
         currentSessionId = generateUUID();
+        conversationStarted = true;
+        
         const data = [{
             action: "loadPreviousSession",
             sessionId: currentSessionId,
@@ -446,7 +474,7 @@
                 userId: ""
             }
         }];
-
+    
         try {
             const response = await fetch(config.webhook.url, {
                 method: 'POST',
@@ -455,80 +483,151 @@
                 },
                 body: JSON.stringify(data)
             });
-
+    
             const responseData = await response.json();
-            chatContainer.querySelector('.brand-header').style.display = 'none';
-            chatContainer.querySelector('.new-conversation').style.display = 'none';
-            chatInterface.classList.add('active');
-
-            const botMessageDiv = document.createElement('div');
-            botMessageDiv.className = 'chat-message bot';
-            botMessageDiv.textContent = Array.isArray(responseData) ? responseData[0].output : responseData.output;
-            messagesContainer.appendChild(botMessageDiv);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        } catch (error) {
-            console.error('Error:', error);
-        }
-    }
-
-    async function sendMessage(message) {
-        const messageData = {
-            action: "sendMessage",
-            sessionId: currentSessionId,
-            route: config.webhook.route,
-            chatInput: message,
-            metadata: {
-                userId: ""
+            showChatInterface();
+    
+            // Dans la fonction startNewConversation, remplacer les lignes 490-495 :
+            // Ajouter le message initial seulement s'il n'y a pas encore de messages
+            if (messagesContainer.children.length === 0) {
+                const botMessageDiv = document.createElement('div');
+                botMessageDiv.className = 'chat-message bot';
+                // Utiliser le welcomeText au lieu de responseData.output
+                botMessageDiv.textContent = config.branding.welcomeText || t.welcomeText;
+                messagesContainer.appendChild(botMessageDiv);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
             }
-        };
-
-        const userMessageDiv = document.createElement('div');
-        userMessageDiv.className = 'chat-message user';
-        userMessageDiv.textContent = message;
-        messagesContainer.appendChild(userMessageDiv);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
-        try {
-            const response = await fetch(config.webhook.url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(messageData)
-            });
-            
-            const data = await response.json();
-            
-            const botMessageDiv = document.createElement('div');
-            botMessageDiv.className = 'chat-message bot';
-            botMessageDiv.textContent = Array.isArray(data) ? data[0].output : data.output;
-            messagesContainer.appendChild(botMessageDiv);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
         } catch (error) {
             console.error('Error:', error);
         }
     }
 
-    newChatBtn.addEventListener('click', startNewConversation);
+    // Nouvelle fonction pour afficher l'interface de chat
+    // Remplacer les lignes 443-447 par :
+    .n8n-chat-widget .start-chat-btn {
+        background: linear-gradient(135deg, var(--chat--color-primary), var(--chat--color-secondary));
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 25px;
+        cursor: pointer;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        font-family: inherit;
+        font-size: 14px;
+        width: 100%;
+        justify-content: center;
+    }
     
-    sendButton.addEventListener('click', () => {
-        const message = textarea.value.trim();
-        if (message) {
-            sendMessage(message);
-            textarea.value = '';
+    .n8n-chat-widget .start-chat-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(133, 79, 255, 0.3);
+    }
+    
+    .n8n-chat-widget .chat-input {
+        padding: 16px;
+        border-top: 1px solid rgba(133, 79, 255, 0.1);
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+    
+    .n8n-chat-widget .message-input {
+        flex: 1;
+        border: 1px solid rgba(133, 79, 255, 0.2);
+        border-radius: 20px;
+        padding: 10px 16px;
+        font-family: inherit;
+        font-size: 14px;
+        outline: none;
+        resize: none;
+        background: var(--chat--color-background);
+        color: var(--chat--color-font);
+    }
+    
+    .n8n-chat-widget .send-button {
+        background: var(--chat--color-primary);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+    }
+
+    // Nouvelle fonction pour revenir à l'écran d'accueil (sans réinitialiser)
+    function showChatInterface() {
+        chatContainer.querySelector('.chat-header').style.display = 'none';
+        chatContainer.querySelector('.new-conversation').style.display = 'none';
+        chatInterface.classList.add('active');
+    }
+
+    // Nouvelle fonction pour revenir à l'écran d'accueil (sans réinitialiser)
+    function showWelcomeScreen() {
+        chatInterface.classList.remove('active');
+        chatContainer.querySelector('.brand-header').style.display = 'flex';
+        chatContainer.querySelector('.new-conversation').style.display = 'flex';
+        
+        // Modifier le texte du bouton si une conversation existe
+        const startBtn = chatContainer.querySelector('.start-chat-btn');
+        if (startBtn && conversationStarted) {
+            startBtn.innerHTML = `
+                <svg class="message-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.2L4 17.2V4h16v12z"/>
+                </svg>
+                Continuer la conversation
+            `;
         }
-    });
-    
-    textarea.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            const message = textarea.value.trim();
+    }
+
+    // Modifier les événements pour utiliser les nouvelles fonctions
+    newChatBtn.addEventListener('click', startNewConversation);
+
+    // Ajouter l'événement pour le bouton retour (à adapter selon la nouvelle structure)
+    const backButton = chatContainer.querySelector('.back-button');
+    if (backButton) {
+        backButton.addEventListener('click', showWelcomeScreen);
+    }
+
+    // Modifier les sélecteurs selon la nouvelle structure (exemple avec le design de l'aperçu)
+    const startChatBtn = chatContainer.querySelector('.start-chat-btn'); // nouveau sélecteur
+    const messageInput = chatContainer.querySelector('.message-input'); // nouveau sélecteur
+    const sendButton = chatContainer.querySelector('.send-button'); // nouveau sélecteur
+
+    // Adapter les événements aux nouveaux sélecteurs
+    if (startChatBtn) {
+        startChatBtn.addEventListener('click', startNewConversation);
+    }
+
+    if (sendButton) {
+        sendButton.addEventListener('click', () => {
+            const message = messageInput.value.trim();
             if (message) {
                 sendMessage(message);
-                textarea.value = '';
+                messageInput.value = '';
             }
-        }
-    });
+        });
+    }
+
+    if (messageInput) {
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                const message = messageInput.value.trim();
+                if (message) {
+                    sendMessage(message);
+                    messageInput.value = '';
+                }
+            }
+        });
+    }
     
     toggleButton.addEventListener('click', () => {
         chatContainer.classList.toggle('open');

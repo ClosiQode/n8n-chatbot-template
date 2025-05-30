@@ -451,7 +451,7 @@
             opacity: 0.8;
         }
 
- lege        /* Styles pour l'aperçu du chatbot */
+        /* Styles pour l'aperçu du chatbot */
         .new-conversation {
             display: flex;
             flex-direction: column;
@@ -1013,14 +1013,10 @@
                         <div class="chat-window" id="chatWindow">
                             <!-- New Conversation Screen (default view) -->
                             <div class="new-conversation" id="newConversationPreview">
-                                <div class="chat-header">
-                                    <div class="chat-avatar">
-                                        <i class="fas fa-robot"></i>
-                                    </div>
-                                    <div class="chat-info">
-                                        <h4 id="previewCompanyName">Votre Entreprise</h4>
-                                        <p>En ligne maintenant</p>
-                                    </div>
+                                <div class="brand-header">
+                                    <img id="previewLogo" src="" alt="Logo" style="width: 32px; height: 32px; display: none;">
+                                    <i class="fas fa-robot" id="previewRobotIcon"></i>
+                                    <span id="previewCompanyName">Votre Entreprise</span>
                                     <button class="close-preview-btn" onclick="toggleChatPreview()">
                                         <i class="fas fa-times"></i>
                                     </button>
@@ -1224,7 +1220,7 @@
         language: '${config.language}'
     };
 <\/script>
-<script src="https://cdn.jsdelivr.net/gh/ClosiQode/n8n-chatbot-template@main/chat-widget-multilingual.js"><\/script>`;
+<script src="https://cdn.jsdelivr.net/gh/ClosiQode/n8n-chatbot-template@main/chat-widget.js"><\/script>`;
             
             // Afficher le code généré
             document.getElementById('generatedCode').textContent = integrationScript;
@@ -1365,20 +1361,24 @@
             }
             
             // Mettre à jour le logo si fourni
-            const logoElements = document.querySelectorAll('.chat-avatar img');
+            const logoImg = document.getElementById('previewLogo');
+            const robotIcon = document.getElementById('previewRobotIcon');
+
             if (logo && logo.trim()) {
-                logoElements.forEach(img => {
-                    img.src = logo;
-                    img.style.display = 'block';
-                });
-                // Cacher l'icône robot par défaut
-                const robotIcons = document.querySelectorAll('.chat-avatar i');
-                robotIcons.forEach(icon => icon.style.display = 'none');
+                if (logoImg) {
+                    logoImg.src = logo;
+                    logoImg.style.display = 'block';
+                }
+                if (robotIcon) {
+                    robotIcon.style.display = 'none';
+                }
             } else {
-                // Afficher l'icône robot par défaut
-                logoElements.forEach(img => img.style.display = 'none');
-                const robotIcons = document.querySelectorAll('.chat-avatar i');
-                robotIcons.forEach(icon => icon.style.display = 'block');
+                if (logoImg) {
+                    logoImg.style.display = 'none';
+                }
+                if (robotIcon) {
+                    robotIcon.style.display = 'block';
+                }
             }
             
             // Mettre à jour la position du widget
@@ -1455,7 +1455,9 @@
                 secondaryColor: document.getElementById('secondaryColor').value,
                 backgroundColor: document.getElementById('backgroundColor').value,
                 fontColor: document.getElementById('fontColor').value,
-                position: document.getElementById('position').value
+                position: document.getElementById('position').value,
+                logo: document.getElementById('logo').value,
+                companyName: document.getElementById('companyName').value || 'Votre Entreprise'
             };
             
             const testPage = `<!DOCTYPE html>
@@ -1464,17 +1466,47 @@
     <meta charset="UTF-8">
     <title>Test du Chatbot</title>
     <style>
-        body { font-family: Arial, sans-serif; padding: 40px; background: #f5f5f5; }
-        .test-container { max-width: 800px; margin: 0 auto; background: white; padding: 40px; border-radius: 10px; }
-        h1 { color: #333; text-align: center; }
-        p { color: #666; text-align: center; margin-bottom: 30px; }
-        
-        /* Styles personnalisés pour le chatbot */
-        .chat-widget {
-            --primary-color: ${config.primaryColor};
-            --secondary-color: ${config.secondaryColor};
-            --background-color: ${config.backgroundColor};
-            --font-color: ${config.fontColor};
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 40px; 
+            background: #f5f5f5; 
+            margin: 0;
+        }
+        .test-container { 
+            max-width: 800px; 
+            margin: 0 auto; 
+            background: white; 
+            padding: 40px; 
+            border-radius: 10px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 { 
+            color: #333; 
+            text-align: center; 
+            margin-bottom: 20px;
+        }
+        p { 
+            color: #666; 
+            text-align: center; 
+            margin-bottom: 30px; 
+            line-height: 1.6;
+        }
+        .config-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        .config-info h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .config-item {
+            margin: 10px 0;
+            padding: 8px;
+            background: white;
+            border-radius: 4px;
+            border-left: 4px solid ${config.primaryColor};
         }
     </style>
 </head>
@@ -1483,6 +1515,15 @@
         <h1>🧪 Page de test du chatbot</h1>
         <p>Cette page vous permet de tester votre chatbot avant de l'intégrer sur votre site.</p>
         <p>Le chatbot devrait apparaître en bas de cette page avec vos couleurs personnalisées.</p>
+        
+        <div class="config-info">
+            <h3>Configuration actuelle :</h3>
+            <div class="config-item"><strong>Entreprise :</strong> ${config.companyName}</div>
+            <div class="config-item"><strong>Langue :</strong> ${config.language}</div>
+            <div class="config-item"><strong>Position :</strong> ${config.position}</div>
+            <div class="config-item"><strong>Couleur primaire :</strong> <span style="background: ${config.primaryColor}; color: white; padding: 2px 8px; border-radius: 3px;">${config.primaryColor}</span></div>
+            ${config.logo ? `<div class="config-item"><strong>Logo :</strong> <img src="${config.logo}" alt="Logo" style="height: 30px; vertical-align: middle;"></div>` : ''}
+        </div>
     </div>
     
     ${code}
@@ -1491,6 +1532,7 @@
             
             const testWindow = window.open('', '_blank', 'width=1200,height=800');
             testWindow.document.write(testPage);
+            testWindow.document.close();
         }
         
         function showInstructions() {
