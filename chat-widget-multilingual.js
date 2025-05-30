@@ -517,7 +517,26 @@
             console.log('Conversation started with sessionId:', currentSessionId);
             // Dans la fonction startNewConversation, remplacer les lignes 490-495 :
             // Ajouter le message initial seulement s'il n'y a pas encore de messages
-
+            if (messagesContainer.children.length === 0) {
+                // DÉBOGAGE - Ajoutez ces lignes pour diagnostiquer
+                console.log('Config branding welcomeText:', config.branding.welcomeText);
+                console.log('Translation welcomeText:', t.welcomeText);
+                console.log('Current language:', config.language);
+                console.log('Available translations:', t);
+                
+                const botMessageDiv = document.createElement('div');
+                botMessageDiv.className = 'chat-message bot';
+                
+                // Utiliser le welcomeText au lieu de responseData.output
+                const welcomeMessage = 'Message de bienvenue par défaut';
+                console.log('Final welcome message:', welcomeMessage);
+                
+                botMessageDiv.textContent = welcomeMessage;
+                messagesContainer.appendChild(botMessageDiv);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                
+                console.log('Message ajouté au DOM:', botMessageDiv);
+            }
         } catch (error) {
             console.error('Error:', error);
         }
