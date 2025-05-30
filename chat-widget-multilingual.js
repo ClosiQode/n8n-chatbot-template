@@ -513,7 +513,7 @@
     
             const responseData = await response.json();
             showChatInterface();
-    
+            console.log('Conversation started with sessionId:', currentSessionId);
             // Dans la fonction startNewConversation, remplacer les lignes 490-495 :
             // Ajouter le message initial seulement s'il n'y a pas encore de messages
             if (messagesContainer.children.length === 0) {
