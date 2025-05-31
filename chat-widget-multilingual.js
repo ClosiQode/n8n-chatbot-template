@@ -485,7 +485,7 @@
     // Modifier la fonction startNewConversation pour ne démarrer qu'une seule fois
     async function startNewConversation() {
         // Ne démarrer une nouvelle conversation que si aucune n'est en cours
-        if (conversationStarted && currentSessionId) {
+        if (currentSessionId) {
             // Si une conversation existe déjà, juste basculer vers l'interface de chat
             showChatInterface();
             return;
