@@ -558,6 +558,10 @@
         }
     }
 
+    // Déplacer cette déclaration AVANT son utilisation
+    const startChatBtn = chatContainer.querySelector('.start-chat-btn');
+    const messageInput = chatContainer.querySelector('.message-input');
+
     // Modifier les événements pour utiliser les nouvelles fonctions
     if (startChatBtn) {
         startChatBtn.addEventListener('click', startNewConversation);
@@ -572,6 +576,10 @@
     // Modifier les sélecteurs selon la nouvelle structure (exemple avec le design de l'aperçu)
     const startChatBtn = chatContainer.querySelector('.start-chat-btn'); // nouveau sélecteur
     const messageInput = chatContainer.querySelector('.message-input'); // nouveau sélecteur
+
+    // Supprimer la déclaration dupliquée qui était à la ligne 571
+    // const startChatBtn = chatContainer.querySelector('.start-chat-btn'); // ← SUPPRIMER CETTE LIGNE
+    // const messageInput = chatContainer.querySelector('.message-input'); // ← SUPPRIMER CETTE LIGNE
 
     // Adapter les événements aux nouveaux sélecteurs
     if (startChatBtn) {
