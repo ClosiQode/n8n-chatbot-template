@@ -560,8 +560,7 @@
 
     // Déplacer cette déclaration AVANT son utilisation
     const startChatBtn = chatContainer.querySelector('.start-chat-btn');
-    // SUPPRIMER cette ligne dupliquée :
-    // const messageInput = chatContainer.querySelector('.message-input');
+    const messageInput = chatContainer.querySelector('.message-input'); // ← AJOUTER CETTE LIGNE
 
     // Modifier les événements pour utiliser les nouvelles fonctions
     if (startChatBtn) {
