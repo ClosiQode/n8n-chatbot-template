@@ -467,7 +467,7 @@
     widgetContainer.appendChild(toggleButton);
     document.body.appendChild(widgetContainer);
 
-    const newChatBtn = chatContainer.querySelector('.new-chat-btn');
+    const newChatBtn = chatContainer.querySelector('.start-chat-btn');
     const chatInterface = chatContainer.querySelector('.chat-interface');
     const messagesContainer = chatContainer.querySelector('.chat-messages');
     const textarea = chatContainer.querySelector('textarea');
@@ -559,7 +559,9 @@
     }
 
     // Modifier les événements pour utiliser les nouvelles fonctions
-    newChatBtn.addEventListener('click', startNewConversation);
+    if (startChatBtn) {
+        startChatBtn.addEventListener('click', startNewConversation);
+    }
 
     // Ajouter l'événement pour le bouton retour (à adapter selon la nouvelle structure)
     const backButton = chatContainer.querySelector('.back-button');
