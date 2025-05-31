@@ -574,7 +574,8 @@
     }
 
     // Modifier les sélecteurs selon la nouvelle structure (exemple avec le design de l'aperçu)
-    const startChatBtn = chatContainer.querySelector('.start-chat-btn'); // nouveau sélecteur
+    // SUPPRIMER CETTE LIGNE DUPLIQUÉE :
+    // const startChatBtn = chatContainer.querySelector('.start-chat-btn'); // nouveau sélecteur
     const messageInput = chatContainer.querySelector('.message-input'); // nouveau sélecteur
 
     // Supprimer la déclaration dupliquée qui était à la ligne 571
