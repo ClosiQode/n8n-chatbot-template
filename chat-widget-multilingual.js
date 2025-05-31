@@ -1,4 +1,4 @@
-// Multilingual Chat Widget
+// Modern Multilingual Chat Widget with Dark Mode & Animations
 (function() {
     // Translations
     const translations = {
@@ -40,14 +40,56 @@
         }
     };
 
-    // Create and inject styles
+    // Detect system theme preference
+    const getSystemTheme = () => {
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            return 'dark';
+        }
+        return 'light';
+    };
+
+    // Create and inject modern styles with dark mode support
     const styles = `
         .n8n-chat-widget {
             --chat--color-primary: var(--n8n-chat-primary-color, #854fff);
             --chat--color-secondary: var(--n8n-chat-secondary-color, #6b3fd4);
-            --chat--color-background: var(--n8n-chat-background-color, #ffffff);
-            --chat--color-font: var(--n8n-chat-font-color, #333333);
+            --chat--color-accent: var(--n8n-chat-accent-color, #ff6b6b);
             font-family: 'Geist Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            
+            /* Light theme variables */
+            --chat--bg-primary: #ffffff;
+            --chat--bg-secondary: #f8fafc;
+            --chat--bg-tertiary: #f1f5f9;
+            --chat--text-primary: #1e293b;
+            --chat--text-secondary: #64748b;
+            --chat--border-color: #e2e8f0;
+            --chat--shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            --chat--shadow-hover: 0 20px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        .n8n-chat-widget[data-theme="dark"] {
+            /* Dark theme variables */
+            --chat--bg-primary: #0f172a;
+            --chat--bg-secondary: #1e293b;
+            --chat--bg-tertiary: #334155;
+            --chat--text-primary: #f1f5f9;
+            --chat--text-secondary: #94a3b8;
+            --chat--border-color: #334155;
+            --chat--shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            --chat--shadow-hover: 0 20px 60px rgba(0, 0, 0, 0.4);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .n8n-chat-widget:not([data-theme="light"]) {
+                --chat--bg-primary: #0f172a;
+                --chat--bg-secondary: #1e293b;
+                --chat--bg-tertiary: #334155;
+                --chat--text-primary: #f1f5f9;
+                --chat--text-secondary: #94a3b8;
+                --chat--border-color: #334155;
+                --chat--shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+                --chat--shadow-hover: 0 20px 60px rgba(0, 0, 0, 0.4);
+            }
         }
 
         .n8n-chat-widget .chat-container {
@@ -58,12 +100,16 @@
             display: none;
             width: 380px;
             height: 600px;
-            background: var(--chat--color-background);
-            border-radius: 12px;
-            box-shadow: 0 8px 32px rgba(133, 79, 255, 0.15);
-            border: 1px solid rgba(133, 79, 255, 0.2);
+            background: var(--chat--bg-primary);
+            border-radius: 20px;
+            box-shadow: var(--chat--shadow);
+            border: 1px solid var(--chat--border-color);
             overflow: hidden;
             font-family: inherit;
+            backdrop-filter: blur(20px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateY(100%) scale(0.8);
+            opacity: 0;
         }
 
         .n8n-chat-widget .chat-container.position-left {
@@ -74,106 +120,221 @@
         .n8n-chat-widget .chat-container.open {
             display: flex;
             flex-direction: column;
+            transform: translateY(0) scale(1);
+            opacity: 1;
+            animation: slideInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes slideInUp {
+            from {
+                transform: translateY(100%) scale(0.8);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInScale {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -200% 0;
+            }
+            100% {
+                background-position: 200% 0;
+            }
         }
 
         .n8n-chat-widget .brand-header {
-            padding: 16px;
+            padding: 20px;
             display: flex;
             align-items: center;
             gap: 12px;
-            border-bottom: 1px solid rgba(133, 79, 255, 0.1);
+            border-bottom: 1px solid var(--chat--border-color);
             position: relative;
+            background: linear-gradient(135deg, var(--chat--bg-primary) 0%, var(--chat--bg-secondary) 100%);
         }
 
         .n8n-chat-widget .close-button {
             position: absolute;
-            right: 16px;
+            right: 20px;
             top: 50%;
             transform: translateY(-50%);
-            background: none;
+            background: var(--chat--bg-tertiary);
             border: none;
-            color: var(--chat--color-font);
+            color: var(--chat--text-secondary);
             cursor: pointer;
-            padding: 4px;
+            padding: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: color 0.2s;
-            font-size: 20px;
-            opacity: 0.6;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 18px;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
         }
 
         .n8n-chat-widget .close-button:hover {
-            opacity: 1;
+            background: var(--chat--color-accent);
+            color: white;
+            transform: translateY(-50%) rotate(90deg);
         }
 
         .n8n-chat-widget .brand-header img {
             width: 32px;
             height: 32px;
+            border-radius: 50%;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 1;
+        }
+
+        .n8n-chat-widget .brand-header img.logo-light {
+            display: block;
+        }
+
+        .n8n-chat-widget .brand-header img.logo-dark {
+            display: none;
+        }
+
+        .n8n-chat-widget[data-theme="dark"] .brand-header img.logo-light {
+            display: none;
+        }
+
+        .n8n-chat-widget[data-theme="dark"] .brand-header img.logo-dark {
+            display: block;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .n8n-chat-widget:not([data-theme="light"]) .brand-header img.logo-light {
+                display: none;
+            }
+            .n8n-chat-widget:not([data-theme="light"]) .brand-header img.logo-dark {
+                display: block;
+            }
+        }
+
+        .n8n-chat-widget .brand-header img:hover {
+            transform: scale(1.1) rotate(5deg);
         }
 
         .n8n-chat-widget .brand-header span {
             font-size: 18px;
-            font-weight: 500;
-            color: var(--chat--color-font);
+            font-weight: 600;
+            color: var(--chat--text-primary);
+            background: linear-gradient(135deg, var(--chat--color-primary), var(--chat--color-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .n8n-chat-widget .new-conversation {
             position: absolute;
-            top: 50%;
-            left: 50%;
+            top: 25%;
             transform: translate(-50%, -50%);
-            padding: 20px;
+            padding: 30px;
             text-align: center;
             width: 100%;
-            max-width: 300px;
+            max-width: 320px;
+            animation: fadeInScale 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.2s both;
         }
 
         .n8n-chat-widget .welcome-text {
-            font-size: 24px;
-            font-weight: 600;
-            color: var(--chat--color-font);
-            margin-bottom: 24px;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--chat--text-primary);
+            margin-bottom: 30px;
             line-height: 1.3;
+            background: linear-gradient(135deg, var(--chat--color-primary), var(--chat--color-secondary), var(--chat--color-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: shimmer 3s ease-in-out infinite;
+            background-size: 200% 100%;
         }
 
         .n8n-chat-widget .new-chat-btn {
             background: linear-gradient(135deg, var(--chat--color-primary), var(--chat--color-secondary));
             color: white;
             border: none;
-            padding: 16px 24px;
-            border-radius: 8px;
+            padding: 18px 28px;
+            border-radius: 50px;
             font-size: 16px;
-            font-weight: 500;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             align-items: center;
-            gap: 8px;
-            margin: 0 auto 16px;
-            box-shadow: 0 4px 12px rgba(133, 79, 255, 0.3);
+            gap: 12px;
+            margin: 0 auto 20px;
+            box-shadow: 0 8px 25px rgba(133, 79, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .n8n-chat-widget .new-chat-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
         }
 
         .n8n-chat-widget .new-chat-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(133, 79, 255, 0.4);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 15px 35px rgba(133, 79, 255, 0.4);
+            animation: pulse 2s infinite;
+        }
+
+        .n8n-chat-widget .new-chat-btn:hover::before {
+            left: 100%;
         }
 
         .n8n-chat-widget .message-icon {
-            width: 20px;
-            height: 20px;
+            width: 22px;
+            height: 22px;
+            transition: transform 0.3s ease;
+        }
+
+        .n8n-chat-widget .new-chat-btn:hover .message-icon {
+            transform: scale(1.2) rotate(10deg);
         }
 
         .n8n-chat-widget .response-text {
-            color: #666;
+            color: var(--chat--text-secondary);
             font-size: 14px;
             margin: 0;
+            opacity: 0.8;
         }
 
         .n8n-chat-widget .chat-interface {
             display: none;
             flex-direction: column;
             height: 100%;
+            animation: fadeInScale 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .n8n-chat-widget .chat-interface.active {
@@ -186,85 +347,160 @@
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 16px;
+            background: var(--chat--bg-secondary);
+        }
+
+        .n8n-chat-widget .chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .n8n-chat-widget .chat-messages::-webkit-scrollbar-track {
+            background: var(--chat--bg-tertiary);
+            border-radius: 3px;
+        }
+
+        .n8n-chat-widget .chat-messages::-webkit-scrollbar-thumb {
+            background: var(--chat--color-primary);
+            border-radius: 3px;
         }
 
         .n8n-chat-widget .chat-message {
-            max-width: 80%;
-            padding: 12px 16px;
-            border-radius: 18px;
+            max-width: 85%;
+            padding: 14px 18px;
+            border-radius: 20px;
             font-size: 14px;
-            line-height: 1.4;
+            line-height: 1.5;
             word-wrap: break-word;
+            position: relative;
+            animation: fadeInScale 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
         }
 
         .n8n-chat-widget .chat-message.user {
-            background: var(--chat--color-primary);
+            background: linear-gradient(135deg, var(--chat--color-primary), var(--chat--color-secondary));
             color: white;
             align-self: flex-end;
-            border-bottom-right-radius: 4px;
+            border-bottom-right-radius: 6px;
+            box-shadow: 0 4px 15px rgba(133, 79, 255, 0.3);
         }
 
         .n8n-chat-widget .chat-message.bot {
-            background: #f1f3f5;
-            color: var(--chat--color-font);
+            background: var(--chat--bg-primary);
+            color: var(--chat--text-primary);
             align-self: flex-start;
-            border-bottom-left-radius: 4px;
+            border-bottom-left-radius: 6px;
+            border: 1px solid var(--chat--border-color);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .n8n-chat-widget .chat-message.typing {
+            background: var(--chat--bg-primary);
+            color: var(--chat--text-secondary);
+            align-self: flex-start;
+            border-bottom-left-radius: 6px;
+            border: 1px solid var(--chat--border-color);
+        }
+
+        .n8n-chat-widget .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 8px 0;
+        }
+
+        .n8n-chat-widget .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--chat--color-primary);
+            animation: typingBounce 1.4s infinite ease-in-out;
+        }
+
+        .n8n-chat-widget .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .n8n-chat-widget .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes typingBounce {
+            0%, 80%, 100% {
+                transform: scale(0.8);
+                opacity: 0.5;
+            }
+            40% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
         }
 
         .n8n-chat-widget .chat-input {
             padding: 20px;
-            border-top: 1px solid #eee;
+            border-top: 1px solid var(--chat--border-color);
             display: flex;
             gap: 12px;
             align-items: flex-end;
+            background: var(--chat--bg-primary);
         }
 
         .n8n-chat-widget .chat-input textarea {
             flex: 1;
-            border: 1px solid #ddd;
-            border-radius: 20px;
-            padding: 12px 16px;
+            border: 2px solid var(--chat--border-color);
+            border-radius: 25px;
+            padding: 14px 20px;
             font-size: 14px;
             resize: none;
             outline: none;
             font-family: inherit;
-            max-height: 100px;
-            min-height: 40px;
+            max-height: 120px;
+            min-height: 44px;
+            background: var(--chat--bg-secondary);
+            color: var(--chat--text-primary);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .n8n-chat-widget .chat-input textarea:focus {
             border-color: var(--chat--color-primary);
+            box-shadow: 0 0 0 3px rgba(133, 79, 255, 0.1);
+            transform: scale(1.02);
+        }
+
+        .n8n-chat-widget .chat-input textarea::placeholder {
+            color: var(--chat--text-secondary);
         }
 
         .n8n-chat-widget .chat-input button {
-            background: var(--chat--color-primary);
+            background: linear-gradient(135deg, var(--chat--color-primary), var(--chat--color-secondary));
             color: white;
             border: none;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            width: 44px;
+            height: 44px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: background-color 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(133, 79, 255, 0.3);
         }
 
         .n8n-chat-widget .chat-input button:hover {
-            background: var(--chat--color-secondary);
+            transform: scale(1.1) rotate(15deg);
+            box-shadow: 0 6px 20px rgba(133, 79, 255, 0.4);
+        }
+
+        .n8n-chat-widget .chat-input button:active {
+            transform: scale(0.95);
         }
 
         .n8n-chat-widget .chat-footer {
-            padding: 12px 20px;
+            padding: 16px 20px;
             text-align: center;
-            border-top: 1px solid #eee;
+            border-top: 1px solid var(--chat--border-color);
+            background: var(--chat--bg-secondary);
         }
 
         .n8n-chat-widget .chat-footer a {
-            color: #666;
+            color: var(--chat--text-secondary);
             text-decoration: none;
             font-size: 12px;
+            transition: color 0.3s ease;
         }
 
         .n8n-chat-widget .chat-footer a:hover {
@@ -275,8 +511,8 @@
             position: fixed;
             bottom: 20px;
             right: 20px;
-            width: 60px;
-            height: 60px;
+            width: 64px;
+            height: 64px;
             border-radius: 50%;
             background: linear-gradient(135deg, var(--chat--color-primary), var(--chat--color-secondary));
             border: none;
@@ -284,9 +520,26 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 20px rgba(133, 79, 255, 0.3);
-            transition: all 0.3s ease;
+            box-shadow: var(--chat--shadow);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 999;
+            overflow: hidden;
+        }
+
+        .n8n-chat-widget .chat-toggle::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, var(--chat--color-secondary), var(--chat--color-accent));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .n8n-chat-widget .chat-toggle:hover::before {
+            opacity: 1;
         }
 
         .n8n-chat-widget .chat-toggle.position-left {
@@ -295,14 +548,46 @@
         }
 
         .n8n-chat-widget .chat-toggle:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 25px rgba(133, 79, 255, 0.4);
+            transform: scale(1.15) rotate(10deg);
+            box-shadow: var(--chat--shadow-hover);
+            animation: pulse 1.5s infinite;
         }
 
         .n8n-chat-widget .chat-toggle svg {
-            width: 24px;
-            height: 24px;
+            width: 28px;
+            height: 28px;
             fill: white;
+            z-index: 1;
+            position: relative;
+            transition: transform 0.3s ease;
+        }
+
+        .n8n-chat-widget .chat-toggle:hover svg {
+            transform: scale(1.1);
+        }
+
+        /* Theme toggle button */
+        .n8n-chat-widget .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 60px;
+            background: var(--chat--bg-tertiary);
+            border: 1px solid var(--chat--border-color);
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            color: var(--chat--text-secondary);
+        }
+
+        .n8n-chat-widget .theme-toggle:hover {
+            background: var(--chat--color-primary);
+            color: white;
+            transform: rotate(180deg);
         }
 
         @media (max-width: 480px) {
@@ -312,10 +597,24 @@
                 bottom: 0;
                 right: 0;
                 border-radius: 0;
+                transform: translateY(100%);
             }
             
             .n8n-chat-widget .chat-container.position-left {
                 left: 0;
+            }
+
+            .n8n-chat-widget .chat-container.open {
+                transform: translateY(0);
+            }
+        }
+
+        /* Accessibility improvements */
+        @media (prefers-reduced-motion: reduce) {
+            .n8n-chat-widget * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
             }
         }
     `;
@@ -326,6 +625,7 @@
     document.head.appendChild(styleSheet);
 
     // Default configuration
+    // Dans la section de configuration par défaut, remplacez :
     const defaultConfig = {
         webhook: {
             url: 'https://your-n8n-webhook-url.com',
@@ -333,7 +633,10 @@
         },
         branding: {
             name: 'Assistant IA',
-            logo: '',
+            logo: {
+                light: '', // Logo pour le mode clair
+                dark: ''   // Logo pour le mode sombre
+            },
             welcomeText: 'Salut 👋, comment pouvons-nous vous aider ?',
             responseTimeText: 'Nous répondons généralement immédiatement',
             poweredBy: {
@@ -344,11 +647,11 @@
         style: {
             primaryColor: '',
             secondaryColor: '',
+            accentColor: '',
             position: 'right',
-            backgroundColor: '#ffffff',
-            fontColor: '#333333'
+            theme: 'auto' // 'light', 'dark', or 'auto'
         },
-        language: 'fr' // Default language
+        language: 'fr'
     };
 
     // Merge user config with defaults
@@ -368,54 +671,96 @@
     window.N8NChatWidgetInitialized = true;
 
     let currentSessionId = '';
+    let currentTheme = config.style.theme === 'auto' ? getSystemTheme() : config.style.theme;
 
     // Create widget container
     const widgetContainer = document.createElement('div');
     widgetContainer.className = 'n8n-chat-widget';
+    widgetContainer.setAttribute('data-theme', currentTheme);
     
     // Set CSS variables for colors
-    widgetContainer.style.setProperty('--n8n-chat-primary-color', config.style.primaryColor);
-    widgetContainer.style.setProperty('--n8n-chat-secondary-color', config.style.secondaryColor);
-    widgetContainer.style.setProperty('--n8n-chat-background-color', config.style.backgroundColor);
-    widgetContainer.style.setProperty('--n8n-chat-font-color', config.style.fontColor);
+    if (config.style.primaryColor) {
+        widgetContainer.style.setProperty('--n8n-chat-primary-color', config.style.primaryColor);
+    }
+    if (config.style.secondaryColor) {
+        widgetContainer.style.setProperty('--n8n-chat-secondary-color', config.style.secondaryColor);
+    }
+    if (config.style.accentColor) {
+        widgetContainer.style.setProperty('--n8n-chat-accent-color', config.style.accentColor);
+    }
 
     const chatContainer = document.createElement('div');
     chatContainer.className = `chat-container${config.style.position === 'left' ? ' position-left' : ''}`;
     
+    // Fonction pour générer les logos
+    function generateLogosHTML(config) {
+    const lightLogo = config.branding.logo?.light || config.branding.logo || '';
+    const darkLogo = config.branding.logo?.dark || config.branding.logo || '';
+    
+    let logosHTML = '';
+    
+    if (lightLogo) {
+        logosHTML += `<img src="${lightLogo}" alt="${config.branding.name}" class="logo-light">`;
+    }
+    
+    if (darkLogo && darkLogo !== lightLogo) {
+        logosHTML += `<img src="${darkLogo}" alt="${config.branding.name}" class="logo-dark">`;
+    } else if (lightLogo && !darkLogo) {
+        logosHTML += `<img src="${lightLogo}" alt="${config.branding.name}" class="logo-dark">`;
+    }
+    
+    return logosHTML;
+    }
+    
+    // Remplacez les sections HTML par :
     const newConversationHTML = `
+    <div class="brand-header">
+        ${generateLogosHTML(config)}
+        <span>${config.branding.name}</span>
+        <button class="theme-toggle" title="Changer le thème">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.758 17.303a.75.75 0 00-1.061-1.06l-1.591 1.59a.75.75 0 001.06 1.061l1.591-1.59zM6 12a.75.75 0 01-.75.75H3a.75.75 0 010-1.5h2.25A.75.75 0 016 12zM6.697 7.757a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 00-1.061 1.06l1.59 1.591z"/>
+            </svg>
+        </button>
+        <button class="close-button">×</button>
+    </div>
+    <div class="new-conversation">
+        <h2 class="welcome-text">${t.welcomeText}</h2>
+        <button class="new-chat-btn">
+            <svg class="message-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.2L4 17.2V4h16v12z"/>
+            </svg>
+            ${t.sendMessage}
+        </button>
+        <p class="response-text">${t.responseTimeText}</p>
+    </div>
+    `;
+    
+    const chatInterfaceHTML = `
+    <div class="chat-interface">
         <div class="brand-header">
-            <img src="${config.branding.logo}" alt="${config.branding.name}" style="display: ${config.branding.logo ? 'block' : 'none'};">
+            ${generateLogosHTML(config)}
             <span>${config.branding.name}</span>
+            <button class="theme-toggle" title="Changer le thème">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.758 17.303a.75.75 0 00-1.061-1.06l-1.591 1.59a.75.75 0 001.06 1.061l1.591-1.59zM6 12a.75.75 0 01-.75.75H3a.75.75 0 010-1.5h2.25A.75.75 0 016 12zM6.697 7.757a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 00-1.061 1.06l1.59 1.591z"/>
+                </svg>
+            </button>
             <button class="close-button">×</button>
         </div>
-        <div class="new-conversation">
-            <h2 class="welcome-text">${t.welcomeText}</h2>
-            <button class="new-chat-btn">
-                <svg class="message-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                    <path fill="currentColor" d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.2L4 17.2V4h16v12z"/>
+        <div class="chat-messages"></div>
+        <div class="chat-input">
+            <textarea placeholder="${t.placeholder}" rows="1"></textarea>
+            <button type="submit">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
                 </svg>
-                ${t.sendMessage}
             </button>
-            <p class="response-text">${t.responseTimeText}</p>
         </div>
-    `;
-
-    const chatInterfaceHTML = `
-        <div class="chat-interface">
-            <div class="brand-header">
-                <img src="${config.branding.logo}" alt="${config.branding.name}" style="display: ${config.branding.logo ? 'block' : 'none'};">
-                <span>${config.branding.name}</span>
-                <button class="close-button">×</button>
-            </div>
-            <div class="chat-messages"></div>
-            <div class="chat-input">
-                <textarea placeholder="${t.placeholder}" rows="1"></textarea>
-                <button type="submit">${t.send}</button>
-            </div>
-            <div class="chat-footer">
-                <a href="${config.branding.poweredBy.link}" target="_blank">${t.poweredBy}</a>
-            </div>
+        <div class="chat-footer">
+            <a href="${config.branding.poweredBy.link}" target="_blank">${t.poweredBy}</a>
         </div>
+    </div>
     `;
     
     chatContainer.innerHTML = newConversationHTML + chatInterfaceHTML;
@@ -437,9 +782,49 @@
     const messagesContainer = chatContainer.querySelector('.chat-messages');
     const textarea = chatContainer.querySelector('textarea');
     const sendButton = chatContainer.querySelector('button[type="submit"]');
+    const themeToggleButtons = chatContainer.querySelectorAll('.theme-toggle');
+
+    // Theme toggle functionality
+    function toggleTheme() {
+        currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+        widgetContainer.setAttribute('data-theme', currentTheme);
+        localStorage.setItem('n8n-chat-theme', currentTheme);
+    }
+
+    // Load saved theme
+    const savedTheme = localStorage.getItem('n8n-chat-theme');
+    if (savedTheme && config.style.theme === 'auto') {
+        currentTheme = savedTheme;
+        widgetContainer.setAttribute('data-theme', currentTheme);
+    }
+
+    // Listen for system theme changes
+    if (config.style.theme === 'auto') {
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+            if (!localStorage.getItem('n8n-chat-theme')) {
+                currentTheme = e.matches ? 'dark' : 'light';
+                widgetContainer.setAttribute('data-theme', currentTheme);
+            }
+        });
+    }
 
     function generateUUID() {
         return crypto.randomUUID();
+    }
+
+    function showTypingIndicator() {
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'chat-message typing';
+        typingDiv.innerHTML = `
+            <div class="typing-indicator">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            </div>
+        `;
+        messagesContainer.appendChild(typingDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        return typingDiv;
     }
 
     async function startNewConversation() {
@@ -454,6 +839,15 @@
         }];
 
         try {
+            const brandHeader = chatContainer.querySelector('.brand-header');
+            if (brandHeader) {
+                brandHeader.style.display = 'none';
+            }
+            chatContainer.querySelector('.new-conversation').style.display = 'none';
+            chatInterface.classList.add('active');
+
+            const typingIndicator = showTypingIndicator();
+
             const response = await fetch(config.webhook.url, {
                 method: 'POST',
                 headers: {
@@ -463,13 +857,9 @@
             });
 
             const responseData = await response.json();
-            console.log('Response:', responseData);
-            const brandHeader = chatContainer.querySelector('.brand-header');
-            if (brandHeader) {
-                brandHeader.style.display = 'none';
-            }
-            chatContainer.querySelector('.new-conversation').style.display = 'none';
-            chatInterface.classList.add('active');
+            
+            // Remove typing indicator
+            typingIndicator.remove();
 
             const botMessageDiv = document.createElement('div');
             botMessageDiv.className = 'chat-message bot';
@@ -498,6 +888,8 @@
         messagesContainer.appendChild(userMessageDiv);
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
+        const typingIndicator = showTypingIndicator();
+
         try {
             const response = await fetch(config.webhook.url, {
                 method: 'POST',
@@ -509,6 +901,9 @@
             
             const data = await response.json();
             
+            // Remove typing indicator
+            typingIndicator.remove();
+            
             const botMessageDiv = document.createElement('div');
             botMessageDiv.className = 'chat-message bot';
             botMessageDiv.textContent = Array.isArray(data) ? data[0].output : data.output;
@@ -516,6 +911,7 @@
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         } catch (error) {
             console.error('Error:', error);
+            typingIndicator.remove();
         }
     }
 
@@ -527,6 +923,7 @@
         if (message) {
             sendMessage(message);
             textarea.value = '';
+            textarea.style.height = 'auto';
         }
     });
     
@@ -537,15 +934,27 @@
             if (message) {
                 sendMessage(message);
                 textarea.value = '';
+                textarea.style.height = 'auto';
             }
         }
+    });
+
+    // Auto-resize textarea
+    textarea.addEventListener('input', () => {
+        textarea.style.height = 'auto';
+        textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
     });
     
     toggleButton.addEventListener('click', () => {
         chatContainer.classList.toggle('open');
     });
 
-    // Add close button handlers
+    // Theme toggle event listeners
+    themeToggleButtons.forEach(button => {
+        button.addEventListener('click', toggleTheme);
+    });
+
+    // Close button handlers
     const closeButtons = chatContainer.querySelectorAll('.close-button');
     closeButtons.forEach(button => {
         button.addEventListener('click', () => {
