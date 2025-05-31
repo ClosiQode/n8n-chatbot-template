@@ -534,6 +534,36 @@
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 999;
             overflow: hidden;
+            animation: var(--chat-toggle-animation, breathe) var(--chat-toggle-animation-duration, 3s) ease-in-out infinite;
+        }
+
+        /* Nouvelles animations configurables */
+        @keyframes breathe {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-3deg); }
+            75% { transform: rotate(3deg); }
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: var(--chat--shadow); }
+            50% { box-shadow: 0 0 30px var(--chat--color-primary); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-2px); }
+            75% { transform: translateX(2px); }
         }
 
         .n8n-chat-widget .chat-toggle::before {
@@ -558,9 +588,18 @@
         }
 
         .n8n-chat-widget .chat-toggle:hover {
-            transform: scale(1.15) rotate(10deg);
+            transform: scale(var(--chat-toggle-hover-scale, 1.15)) rotate(var(--chat-toggle-hover-rotation, 10deg));
             box-shadow: var(--chat--shadow-hover);
-            animation: pulse calc(var(--chat-animation-speed, 0.5s) * 3) infinite;
+            animation: pulse var(--chat-toggle-pulse-speed, 2s) infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { 
+                box-shadow: var(--chat--shadow); 
+            }
+            50% { 
+                box-shadow: 0 0 var(--chat-toggle-glow-intensity, 30px) var(--chat-toggle-glow-color, var(--chat--color-primary));
+            }
         }
 
         .n8n-chat-widget .chat-toggle svg {
@@ -799,6 +838,29 @@
     }
     if (config.style.welcomeScreenTransform) {
         widgetContainer.style.setProperty('--welcome-screen-transform', config.style.welcomeScreenTransform);
+    }
+    
+    // Animations de la bulle
+    if (config.style.toggleAnimation) {
+        widgetContainer.style.setProperty('--chat-toggle-animation', config.style.toggleAnimation);
+    }
+    if (config.style.toggleAnimationDuration) {
+        widgetContainer.style.setProperty('--chat-toggle-animation-duration', config.style.toggleAnimationDuration);
+    }
+    if (config.style.toggleAnimationDelay) {
+        widgetContainer.style.setProperty('--chat-toggle-animation-delay', config.style.toggleAnimationDelay);
+    }
+    if (config.style.toggleHoverScale) {
+        widgetContainer.style.setProperty('--chat-toggle-hover-scale', config.style.toggleHoverScale);
+    }
+    if (config.style.toggleHoverRotation) {
+        widgetContainer.style.setProperty('--chat-toggle-hover-rotation', config.style.toggleHoverRotation);
+    }
+    if (config.style.toggleGlowColor) {
+        widgetContainer.style.setProperty('--chat-toggle-glow-color', config.style.toggleGlowColor);
+    }
+    if (config.style.toggleGlowIntensity) {
+        widgetContainer.style.setProperty('--chat-toggle-glow-intensity', config.style.toggleGlowIntensity);
     }
 
     const chatContainer = document.createElement('div');
