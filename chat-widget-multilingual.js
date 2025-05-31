@@ -560,7 +560,8 @@
 
     // Déplacer cette déclaration AVANT son utilisation
     const startChatBtn = chatContainer.querySelector('.start-chat-btn');
-    const messageInput = chatContainer.querySelector('.message-input');
+    // SUPPRIMER cette ligne dupliquée :
+    // const messageInput = chatContainer.querySelector('.message-input');
 
     // Modifier les événements pour utiliser les nouvelles fonctions
     if (startChatBtn) {
@@ -576,7 +577,8 @@
     // Modifier les sélecteurs selon la nouvelle structure (exemple avec le design de l'aperçu)
     // SUPPRIMER CETTE LIGNE DUPLIQUÉE :
     // const startChatBtn = chatContainer.querySelector('.start-chat-btn'); // nouveau sélecteur
-    const messageInput = chatContainer.querySelector('.message-input'); // nouveau sélecteur
+    // SUPPRIMER CETTE LIGNE DUPLIQUÉE :
+    // const messageInput = chatContainer.querySelector('.message-input'); // nouveau sélecteur
 
     // Supprimer la déclaration dupliquée qui était à la ligne 571
     // const startChatBtn = chatContainer.querySelector('.start-chat-btn'); // ← SUPPRIMER CETTE LIGNE
