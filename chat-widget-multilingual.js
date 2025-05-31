@@ -1,5 +1,6 @@
 (function() {
     // Translations
+    console.log('Chat widget translations:');
     const widgetTranslations = {
         fr: {
             welcomeText: "Salut 👋, comment pouvons-nous vous aider ?",
@@ -485,7 +486,7 @@
     // Modifier la fonction startNewConversation pour ne démarrer qu'une seule fois
     async function startNewConversation() {
         // Ne démarrer une nouvelle conversation que si aucune n'est en cours
-        if (currentSessionId) {
+        if (conversationStarted && currentSessionId) {
             // Si une conversation existe déjà, juste basculer vers l'interface de chat
             showChatInterface();
             return;
@@ -521,7 +522,7 @@
 
             const botMessageDiv = document.createElement('div');
             botMessageDiv.className = 'chat-message bot';
-            botMessageDiv.textContent = "Array.isArray(responseData) ? responseData[0].output : responseData.output";
+            botMessageDiv.textContent = Array.isArray(responseData) ? responseData[0].output : responseData.output;
             messagesContainer.appendChild(botMessageDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
                 
