@@ -522,7 +522,14 @@
             
             // Ensuite afficher l'interface
             showChatInterface();
-            chatContainer.querySelector('.brand-header').style.display = 'none';
+            // Remplacer la ligne 525 :
+            // chatContainer.querySelector('.brand-header').style.display = 'none';
+            
+            // Par une vérification de sécurité :
+            const brandHeader = chatContainer.querySelector('.brand-header');
+            if (brandHeader) {
+                brandHeader.style.display = 'none';
+            }
             
             // Enfin faire défiler
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
