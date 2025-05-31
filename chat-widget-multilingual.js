@@ -259,8 +259,9 @@
 
         .n8n-chat-widget .new-conversation {
             position: absolute;
-            top: 25%;
-            transform: translate(-50%, -50%);
+            top: var(--welcome-screen-top, 25%);
+            left: var(--welcome-screen-left, 0%);
+            transform: var(--welcome-screen-transform, translate(-50%, -50%));
             padding: 30px;
             text-align: center;
             width: 100%;
@@ -787,6 +788,17 @@
     }
     if (config.style.fontColor) {
         widgetContainer.style.setProperty('--chat-font-color', config.style.fontColor);
+    }
+    
+    // Positionnement écran d'accueil
+    if (config.style.welcomeScreenTop) {
+        widgetContainer.style.setProperty('--welcome-screen-top', config.style.welcomeScreenTop);
+    }
+    if (config.style.welcomeScreenLeft) {
+        widgetContainer.style.setProperty('--welcome-screen-left', config.style.welcomeScreenLeft);
+    }
+    if (config.style.welcomeScreenTransform) {
+        widgetContainer.style.setProperty('--welcome-screen-transform', config.style.welcomeScreenTransform);
     }
 
     const chatContainer = document.createElement('div');
