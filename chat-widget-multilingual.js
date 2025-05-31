@@ -479,7 +479,6 @@
 
     // Ajouter une variable pour suivre l'état de la conversation
     let conversationStarted = false;
-    let currentSessionId = '';
 
     
     // Modifier la fonction startNewConversation pour ne démarrer qu'une seule fois
