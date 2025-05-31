@@ -570,7 +570,6 @@
     // Modifier les sélecteurs selon la nouvelle structure (exemple avec le design de l'aperçu)
     const startChatBtn = chatContainer.querySelector('.start-chat-btn'); // nouveau sélecteur
     const messageInput = chatContainer.querySelector('.message-input'); // nouveau sélecteur
-    const sendButton = chatContainer.querySelector('.send-button'); // nouveau sélecteur
 
     // Adapter les événements aux nouveaux sélecteurs
     if (startChatBtn) {
