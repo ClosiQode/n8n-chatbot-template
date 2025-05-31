@@ -463,6 +463,7 @@
             });
 
             const responseData = await response.json();
+            console.log('Response:', responseData);
             const brandHeader = chatContainer.querySelector('.brand-header');
             if (brandHeader) {
                 brandHeader.style.display = 'none';
