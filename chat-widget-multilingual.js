@@ -1,6 +1,5 @@
 (function() {
     // Translations
-    console.log('Chat widget translations:');
     const widgetTranslations = {
         fr: {
             welcomeText: "Salut 👋, comment pouvons-nous vous aider ?",
@@ -513,17 +512,20 @@
                 body: JSON.stringify(data)
             });
     
+            // Dans la fonction startNewConversation, remplacez les lignes 515-525 par :
             const responseData = await response.json();
-            showChatInterface();
-               
-            chatContainer.querySelector('.brand-header').style.display = 'none';
-            chatContainer.querySelector('.new-conversation').style.display = 'none';
-            chatInterface.classList.add('active');
-
+            
+            // D'abord créer et ajouter le message
             const botMessageDiv = document.createElement('div');
             botMessageDiv.className = 'chat-message bot';
             botMessageDiv.textContent = Array.isArray(responseData) ? responseData[0].output : responseData.output;
             messagesContainer.appendChild(botMessageDiv);
+            
+            // Ensuite afficher l'interface
+            showChatInterface();
+            chatContainer.querySelector('.brand-header').style.display = 'none';
+            
+            // Enfin faire défiler
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
                 
         } catch (error) {
