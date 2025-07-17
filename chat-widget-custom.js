@@ -580,7 +580,6 @@
         /* Theme toggle button */
         .n8n-chat-widget .theme-toggle {
             position: absolute;
-            top: 20px;
             right: 60px;
             background: var(--chat--bg-tertiary);
             border: 1px solid var(--chat--border-color);
