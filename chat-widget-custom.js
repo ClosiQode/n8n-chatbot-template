@@ -833,13 +833,17 @@
     
     let logosHTML = '';
     
+    // Add light logo
     if (lightLogo) {
         logosHTML += `<img src="${lightLogo}" alt="${config.branding.name}" class="logo-light">`;
+    } else if (darkLogo) {
+        logosHTML += `<img src="${darkLogo}" alt="${config.branding.name}" class="logo-light">`;
     }
     
-    if (darkLogo && darkLogo !== lightLogo) {
+    // Add dark logo
+    if (darkLogo) {
         logosHTML += `<img src="${darkLogo}" alt="${config.branding.name}" class="logo-dark">`;
-    } else if (lightLogo && !darkLogo) {
+    } else if (lightLogo) {
         logosHTML += `<img src="${lightLogo}" alt="${config.branding.name}" class="logo-dark">`;
     }
     
