@@ -684,6 +684,122 @@
 
     let currentSessionId = '';
     let currentTheme = config.style.theme === 'auto' ? getSystemTheme() : config.style.theme;
+    let isChatClosed = false;
+    
+    // Fonctions de persistance des conversations
+    function saveMessageToSession(message, isUser = false) {
+        if (!currentSessionId) return;
+        
+        const storageKey = `n8n-chat-messages-${currentSessionId}`;
+        const messages = JSON.parse(sessionStorage.getItem(storageKey) || '[]');
+        
+        messages.push({
+            text: message,
+            isUser: isUser,
+            timestamp: Date.now()
+        });
+        
+        sessionStorage.setItem(storageKey, JSON.stringify(messages));
+    }
+    
+    function loadMessagesFromSession() {
+        if (!currentSessionId) return [];
+        
+        const storageKey = `n8n-chat-messages-${currentSessionId}`;
+        return JSON.parse(sessionStorage.getItem(storageKey) || '[]');
+    }
+    
+    function clearSessionMessages() {
+        if (!currentSessionId) return;
+        
+        const storageKey = `n8n-chat-messages-${currentSessionId}`;
+        sessionStorage.removeItem(storageKey);
+        sessionStorage.removeItem('n8n-chat-session-id');
+        sessionStorage.removeItem('n8n-chat-active');
+    }
+    
+    function restoreMessagesFromSession() {
+        const messages = loadMessagesFromSession();
+        messagesContainer.innerHTML = '';
+        
+        messages.forEach(msg => {
+            if (msg.isUser) {
+                const userMessageDiv = document.createElement('div');
+                userMessageDiv.className = 'chat-message user';
+                userMessageDiv.textContent = msg.text;
+                messagesContainer.appendChild(userMessageDiv);
+            } else {
+                addBotMessage(msg.text);
+            }
+        });
+        
+        if (messages.length > 0) {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+    }
+    
+    // Fonction pour gérer la fermeture du chat via N8n
+    function handleChatClosure() {
+        isChatClosed = true;
+        sessionStorage.setItem('n8n-chat-active', 'false');
+        
+        // Masquer le champ de saisie et le bouton d'envoi
+        const chatInput = chatContainer.querySelector('.chat-input');
+        if (chatInput) {
+            chatInput.style.display = 'none';
+        }
+        
+        // Ajouter un message indiquant que la conversation est terminée
+        const closureMessageDiv = document.createElement('div');
+        closureMessageDiv.className = 'chat-message bot';
+        closureMessageDiv.innerHTML = '<em>🔒 Cette conversation est maintenant terminée.</em>';
+        messagesContainer.appendChild(closureMessageDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+    
+    // Fonction de confirmation pour la fermeture du chat
+    function confirmChatClosure() {
+        const confirmed = confirm(
+            'Êtes-vous sûr de vouloir fermer cette conversation ?\n\n' +
+            '⚠️ Attention : L\'historique de la conversation sera définitivement perdu et une nouvelle conversation débutera.'
+        );
+        
+        if (confirmed) {
+            resetChat();
+        }
+        
+        return confirmed;
+    }
+    
+    // Fonction pour réinitialiser complètement le chat
+    function resetChat() {
+        // Effacer l'historique
+        clearSessionMessages();
+        
+        // Réinitialiser les variables
+        currentSessionId = '';
+        isChatClosed = false;
+        
+        // Vider le conteneur de messages
+        messagesContainer.innerHTML = '';
+        
+        // Réafficher le champ de saisie si il était masqué
+        const chatInput = chatContainer.querySelector('.chat-input');
+        if (chatInput) {
+            chatInput.style.display = 'flex';
+        }
+        
+        // Retourner à l'écran d'accueil
+        chatInterface.classList.remove('active');
+        chatContainer.querySelector('.new-conversation').style.display = 'block';
+        const brandHeader = chatContainer.querySelector('.brand-header');
+        if (brandHeader) {
+            brandHeader.style.display = 'flex';
+        }
+        
+        // Fermer le widget
+        chatContainer.classList.remove('open');
+    }
 
     // Create widget container
     const widgetContainer = document.createElement('div');
@@ -978,10 +1094,28 @@
         botMessageDiv.innerHTML = marked.parse(text);
         messagesContainer.appendChild(botMessageDiv);
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        
+        // Sauvegarder le message du bot
+        saveMessageToSession(text, false);
     }
 
     async function startNewConversation() {
-        currentSessionId = generateUUID();
+        // Vérifier s'il y a une session existante
+        const existingSessionId = sessionStorage.getItem('n8n-chat-session-id');
+        const chatActive = sessionStorage.getItem('n8n-chat-active');
+        
+        if (existingSessionId && chatActive === 'true') {
+            // Restaurer la session existante
+            currentSessionId = existingSessionId;
+            isChatClosed = false;
+        } else {
+            // Créer une nouvelle session
+            currentSessionId = generateUUID();
+            sessionStorage.setItem('n8n-chat-session-id', currentSessionId);
+            sessionStorage.setItem('n8n-chat-active', 'true');
+            isChatClosed = false;
+        }
+        
         const data = [{
             action: "loadPreviousSession",
             sessionId: currentSessionId,
@@ -998,6 +1132,13 @@
             }
             chatContainer.querySelector('.new-conversation').style.display = 'none';
             chatInterface.classList.add('active');
+
+            // Restaurer les messages existants avant d'afficher l'indicateur de frappe
+            const existingMessages = loadMessagesFromSession();
+            if (existingMessages.length > 0) {
+                restoreMessagesFromSession();
+                return; // Ne pas envoyer de requête si on a déjà des messages
+            }
 
             const typingIndicator = showTypingIndicator();
 
@@ -1020,10 +1161,20 @@
 
         } catch (error) {
             console.error('Error:', error);
+            // En cas d'erreur, supprimer l'indicateur de frappe s'il existe
+            const typingIndicator = messagesContainer.querySelector('.typing');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
         }
     }
 
     async function sendMessage(message) {
+        // Vérifier si le chat est fermé
+        if (isChatClosed) {
+            return;
+        }
+        
         const messageData = {
             action: "sendMessage",
             sessionId: currentSessionId,
@@ -1039,6 +1190,9 @@
         userMessageDiv.textContent = message;
         messagesContainer.appendChild(userMessageDiv);
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        
+        // Sauvegarder le message utilisateur
+        saveMessageToSession(message, true);
 
         const typingIndicator = showTypingIndicator();
 
@@ -1056,15 +1210,39 @@
             // Remove typing indicator
             typingIndicator.remove();
             
-            const botMessageDiv = document.createElement('div');
-            botMessageDiv.className = 'chat-message bot';
-            const messageText = Array.isArray(data) ? data[0].output : data.output;
-            botMessageDiv.innerHTML = marked.parse(messageText);
-            messagesContainer.appendChild(botMessageDiv);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            // Gérer la réponse avec le nouveau format {output, close_chat}
+            let messageText, shouldCloseChat = false;
+            
+            if (Array.isArray(data)) {
+                // Format tableau (ancien format)
+                messageText = data[0].output;
+                shouldCloseChat = data[0].close_chat || false;
+            } else {
+                // Format objet direct
+                messageText = data.output;
+                shouldCloseChat = data.close_chat || false;
+            }
+            
+            // Afficher le message du bot
+            if (messageText) {
+                addBotMessage(messageText);
+            }
+            
+            // Gérer la fermeture du chat si demandée
+            if (shouldCloseChat) {
+                handleChatClosure();
+            }
+            
         } catch (error) {
             console.error('Error:', error);
             typingIndicator.remove();
+            
+            // Afficher un message d'erreur à l'utilisateur
+            const errorMessageDiv = document.createElement('div');
+            errorMessageDiv.className = 'chat-message bot';
+            errorMessageDiv.innerHTML = '<em>❌ Désolé, une erreur s\'est produite. Veuillez réessayer.</em>';
+            messagesContainer.appendChild(errorMessageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
     }
 
@@ -1099,19 +1277,73 @@
     });
     
     toggleButton.addEventListener('click', () => {
+        const isOpening = !chatContainer.classList.contains('open');
+        
+        if (isOpening) {
+            // Vérifier s'il y a une session active à restaurer
+            const existingSessionId = sessionStorage.getItem('n8n-chat-session-id');
+            const chatActive = sessionStorage.getItem('n8n-chat-active');
+            
+            if (existingSessionId && chatActive === 'true') {
+                // Restaurer la session existante
+                currentSessionId = existingSessionId;
+                isChatClosed = chatActive === 'false';
+                
+                // Passer directement à l'interface de chat
+                const brandHeader = chatContainer.querySelector('.brand-header');
+                if (brandHeader) {
+                    brandHeader.style.display = 'none';
+                }
+                chatContainer.querySelector('.new-conversation').style.display = 'none';
+                chatInterface.classList.add('active');
+                
+                // Restaurer les messages
+                restoreMessagesFromSession();
+                
+                // Si le chat était fermé, masquer les contrôles
+                if (isChatClosed) {
+                    const chatInput = chatContainer.querySelector('.chat-input');
+                    if (chatInput) {
+                        chatInput.style.display = 'none';
+                    }
+                }
+            }
+        }
+        
         chatContainer.classList.toggle('open');
     });
+    
+    // Fonction d'initialisation au chargement de la page
+    function initializeOnPageLoad() {
+        const existingSessionId = sessionStorage.getItem('n8n-chat-session-id');
+        const chatActive = sessionStorage.getItem('n8n-chat-active');
+        
+        if (existingSessionId && chatActive === 'true') {
+            currentSessionId = existingSessionId;
+            isChatClosed = chatActive === 'false';
+        }
+    }
+    
+    // Initialiser au chargement
+    initializeOnPageLoad();
 
     // Theme toggle event listeners
     themeToggleButtons.forEach(button => {
         button.addEventListener('click', toggleTheme);
     });
 
-    // Close button handlers
+    // Close button handlers avec confirmation
     const closeButtons = chatContainer.querySelectorAll('.close-button');
     closeButtons.forEach(button => {
         button.addEventListener('click', () => {
-            chatContainer.classList.remove('open');
+            // Si il y a des messages dans la conversation, demander confirmation
+            const messages = loadMessagesFromSession();
+            if (messages.length > 0) {
+                confirmChatClosure();
+            } else {
+                // Si pas de messages, fermer simplement
+                chatContainer.classList.remove('open');
+            }
         });
     });
 })();
