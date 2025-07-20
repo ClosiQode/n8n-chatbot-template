@@ -668,12 +668,14 @@
     };
 
     // Merge user config with defaults
-    const config = window.ChatWidgetConfig ? 
-        {
-            webhook: { ...defaultConfig.webhook, ...window.ChatWidgetConfig.webhook },
-            branding: { ...defaultConfig.branding, ...window.ChatWidgetConfig.branding },
-            style: { ...defaultConfig.style, ...window.ChatWidgetConfig.style },
-        } : defaultConfig;
+    const config = {
+        ...defaultConfig,
+        ...window.ChatWidgetConfig,
+        webhook: { ...defaultConfig.webhook, ...(window.ChatWidgetConfig?.webhook || {}) },
+        branding: { ...defaultConfig.branding, ...(window.ChatWidgetConfig?.branding || {}) },
+        style: { ...defaultConfig.style, ...(window.ChatWidgetConfig?.style || {}) },
+        metadata: { ...(window.ChatWidgetConfig?.metadata || {}) }
+    };
 
 
     // Prevent multiple initializations
@@ -981,7 +983,7 @@
             sessionId: currentSessionId,
             route: config.webhook.route,
             metadata: {
-                userId: config.userId || ""
+                userId: config.metadata?.userId || ""
             }
         }];
 
@@ -1024,8 +1026,8 @@
             route: config.webhook.route,
             chatInput: message,
             metadata: {
-                userId: config.userId || ""
-            }
+            userId: config.metadata?.userId || ""
+        }
         };
 
         const userMessageDiv = document.createElement('div');
