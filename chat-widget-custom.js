@@ -1215,12 +1215,12 @@
             
             if (Array.isArray(data)) {
                 // Format tableau (ancien format)
-                messageText = data[0].output;
-                shouldCloseChat = data[0].close_chat || false;
+                messageText = data[0].output.output;
+                shouldCloseChat = data[0].output.close_chat || false;
             } else {
                 // Format objet direct
-                messageText = data.output;
-                shouldCloseChat = data.close_chat || false;
+                messageText = data.output.output;
+                shouldCloseChat = data.output.close_chat || false;
             }
             
             // Afficher le message du bot
