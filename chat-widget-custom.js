@@ -365,14 +365,6 @@
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
-        .n8n-chat-widget .chat-message-system {
-            text-align: center;
-            font-style: italic;
-            color: var(--chat--text-secondary);
-            font-size: 12px;
-            margin: 10px 0;
-        }
-
         .n8n-chat-widget .chat-message.typing {
             background: var(--chat--bg-primary);
             color: var(--chat--text-secondary);
@@ -690,7 +682,7 @@
     if (window.N8NChatWidgetInitialized) return;
     window.N8NChatWidgetInitialized = true;
 
-    let currentSessionId = sessionStorage.getItem('n8n-chat-session-id') || '';
+    let currentSessionId = '';
     let currentTheme = config.style.theme === 'auto' ? getSystemTheme() : config.style.theme;
 
     // Create widget container
@@ -894,14 +886,6 @@
                     <path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.758 17.303a.75.75 0 00-1.061-1.06l-1.591 1.59a.75.75 0 001.06 1.061l1.591-1.59zM6 12a.75.75 0 01-.75.75H3a.75.75 0 010-1.5h2.25A.75.75 0 016 12zM6.697 7.757a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 00-1.061 1.06l1.59 1.591z"/>
                 </svg>
             </button>
-            <button class="close-chat-btn" title="Close Chat">&times;</button>
-            ${generateLogosHTML(config)}
-            <span>${config.branding.name}</span>
-            <button class="theme-toggle" title="Changer le thème">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.758 17.303a.75.75 0 00-1.061-1.06l-1.591 1.59a.75.75 0 001.06 1.061l1.591-1.59zM6 12a.75.75 0 01-.75.75H3a.75.75 0 010-1.5h2.25A.75.75 0 016 12zM6.697 7.757a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 00-1.061 1.06l1.59 1.591z"/>
-                </svg>
-            </button>
             <button class="close-button">×</button>
         </div>
         <div class="chat-messages"></div>
@@ -950,8 +934,6 @@
     const textarea = chatContainer.querySelector('textarea');
     const sendButton = chatContainer.querySelector('button[type="submit"]');
     const themeToggleButtons = chatContainer.querySelectorAll('.theme-toggle');
-    const closeChatBtn = chatContainer.querySelector('.close-chat-btn');
-    const closeButtons = chatContainer.querySelectorAll('.close-button');
 
     // Theme toggle functionality
     function toggleTheme() {
@@ -997,50 +979,16 @@
     }
 
     
-        function saveMessageHistory() {
-        const messages = Array.from(messagesContainer.children).map(msgDiv => ({
-            className: msgDiv.className,
-            content: msgDiv.innerHTML
-        }));
-        sessionStorage.setItem('n8n-chat-history', JSON.stringify(messages));
-    }
-
     function addBotMessage(text) {
         const botMessageDiv = document.createElement('div');
         botMessageDiv.className = 'chat-message bot';
         botMessageDiv.innerHTML = marked.parse(text);
         messagesContainer.appendChild(botMessageDiv);
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        saveMessageHistory();
     }
 
-            function closeConversation() {
-        sessionStorage.removeItem('n8n-chat-session-id');
-        currentSessionId = '';
-
-        const chatInput = chatContainer.querySelector('.chat-input');
-        if (chatInput) {
-            chatInput.style.display = 'none';
-        }
-
-        const endMessageDiv = document.createElement('div');
-        endMessageDiv.className = 'chat-message-system';
-        endMessageDiv.textContent = 'Cette conversation est terminée.';
-        messagesContainer.appendChild(endMessageDiv);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        saveMessageHistory();
-    }
-
-        async function startNewConversation() {
-        messagesContainer.innerHTML = '';
-        sessionStorage.removeItem('n8n-chat-history');
+    async function startNewConversation() {
         currentSessionId = generateUUID();
-        sessionStorage.setItem('n8n-chat-session-id', currentSessionId);
-
-        const chatInput = chatContainer.querySelector('.chat-input');
-        if (chatInput) {
-            chatInput.style.display = 'flex';
-        };
         const data = [{
             action: "loadPreviousSession",
             sessionId: currentSessionId,
@@ -1093,12 +1041,11 @@
         }
         };
 
-                const userMessageDiv = document.createElement('div');
+        const userMessageDiv = document.createElement('div');
         userMessageDiv.className = 'chat-message user';
         userMessageDiv.textContent = message;
         messagesContainer.appendChild(userMessageDiv);
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        saveMessageHistory();
 
         const typingIndicator = showTypingIndicator();
 
@@ -1116,81 +1063,20 @@
             // Remove typing indicator
             typingIndicator.remove();
             
-                        const botMessageDiv = document.createElement('div');
+            const botMessageDiv = document.createElement('div');
             botMessageDiv.className = 'chat-message bot';
             const messageText = Array.isArray(data) ? data[0].output : data.output;
             botMessageDiv.innerHTML = marked.parse(messageText);
             messagesContainer.appendChild(botMessageDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            saveMessageHistory();
-
-            const closeSignal = Array.isArray(data) ? data[0].close_chat : data.close_chat;
-            if (closeSignal === true) {
-                setTimeout(closeConversation, 1500);
-            }
         } catch (error) {
             console.error('Error:', error);
             typingIndicator.remove();
         }
     }
 
-        function restoreConversation() {
-        const savedHistory = sessionStorage.getItem('n8n-chat-history');
-        if (savedHistory) {
-            const messages = JSON.parse(savedHistory);
-            messages.forEach(msg => {
-                const msgDiv = document.createElement('div');
-                msgDiv.className = msg.className;
-                msgDiv.innerHTML = msg.content;
-                messagesContainer.appendChild(msgDiv);
-            });
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
-            const brandHeader = chatContainer.querySelector('.brand-header');
-            if (brandHeader) {
-                brandHeader.style.display = 'flex';
-            }
-            chatContainer.querySelector('.new-conversation').style.display = 'none';
-            chatInterface.classList.add('active');
-            chatContainer.classList.add('open');
-        }
-    }
-
-    if (currentSessionId) {
-        restoreConversation();
-    }
-
     // Event listeners
     newChatBtn.addEventListener('click', startNewConversation);
-    if(closeChatBtn) {
-      closeChatBtn.addEventListener('click', () => {
-        if (window.confirm("Êtes-vous sûr de vouloir fermer cette conversation ? L'historique sera perdu.")) {
-            endConversationAndClearHistory();
-        }
-      });
-    }
-
-    function endConversationAndClearHistory() {
-        sessionStorage.removeItem('n8n-chat-session-id');
-        sessionStorage.removeItem('n8n-chat-history');
-        currentSessionId = '';
-        messagesContainer.innerHTML = '';
-        chatInterface.classList.remove('active');
-        chatContainer.querySelector('.new-conversation').style.display = 'block';
-        const chatInput = chatContainer.querySelector('.chat-input');
-        if (chatInput) {
-            chatInput.style.display = 'flex';
-        }
-        chatContainer.classList.remove('open');
-    }
-
-    closeButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            if (window.confirm("Êtes-vous sûr de vouloir fermer cette conversation ? L'historique sera perdu.")) {
-                endConversationAndClearHistory();
-            }
-        });
-    });
     
     sendButton.addEventListener('click', () => {
         const message = textarea.value.trim();
