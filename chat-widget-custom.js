@@ -1,5 +1,5 @@
 // Modern Multilingual Chat Widget with Dark Mode & Animations
-function initializeChatWidget() {
+(function() {
 
     // Detect system theme preference
     const getSystemTheme = () => {
@@ -914,13 +914,11 @@ function initializeChatWidget() {
     
     widgetContainer.appendChild(chatContainer);
     widgetContainer.appendChild(toggleButton);
-    document.body.appendChild(widgetContainer);
+    const markedScript = document.createElement('script');
+    markedScript.src = 'https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.min.js';
+    document.head.appendChild(markedScript);
 
-    const renderer = new marked.Renderer();
-    renderer.link = (href, title, text) => {
-        return `<a target="_blank" rel="noopener noreferrer" href="${href}" title="${title || ''}">${text}</a>`;
-    };
-    marked.setOptions({ renderer });
+    document.body.appendChild(widgetContainer);
 
     // Get DOM elements
     const newChatBtn = chatContainer.querySelector('.new-chat-btn');
@@ -1116,11 +1114,4 @@ function initializeChatWidget() {
             chatContainer.classList.remove('open');
         });
     });
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    const markedScript = document.createElement('script');
-    markedScript.src = 'https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.min.js';
-    markedScript.onload = initializeChatWidget;
-    document.head.appendChild(markedScript);
-});
+})();
