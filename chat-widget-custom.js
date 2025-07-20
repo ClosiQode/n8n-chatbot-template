@@ -914,6 +914,10 @@
     
     widgetContainer.appendChild(chatContainer);
     widgetContainer.appendChild(toggleButton);
+    const markedScript = document.createElement('script');
+    markedScript.src = 'https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.min.js';
+    document.head.appendChild(markedScript);
+
     document.body.appendChild(widgetContainer);
 
     // Get DOM elements
@@ -971,7 +975,7 @@
     function addBotMessage(text) {
         const botMessageDiv = document.createElement('div');
         botMessageDiv.className = 'chat-message bot';
-        botMessageDiv.textContent = text;
+        botMessageDiv.innerHTML = marked.parse(text);
         messagesContainer.appendChild(botMessageDiv);
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
@@ -1054,7 +1058,8 @@
             
             const botMessageDiv = document.createElement('div');
             botMessageDiv.className = 'chat-message bot';
-            botMessageDiv.textContent = Array.isArray(data) ? data[0].output : data.output;
+            const messageText = Array.isArray(data) ? data[0].output : data.output;
+            botMessageDiv.innerHTML = marked.parse(messageText);
             messagesContainer.appendChild(botMessageDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         } catch (error) {
