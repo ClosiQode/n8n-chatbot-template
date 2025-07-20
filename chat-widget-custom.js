@@ -981,7 +981,7 @@
             sessionId: currentSessionId,
             route: config.webhook.route,
             metadata: {
-                userId: ""
+                userId: config.userId || ""
             }
         }];
 
@@ -1024,7 +1024,7 @@
             route: config.webhook.route,
             chatInput: message,
             metadata: {
-                userId: ""
+                userId: config.userId || ""
             }
         };
 
