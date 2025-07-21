@@ -94,6 +94,21 @@
             opacity: 1;
             animation: slideInUp var(--chat-animation-speed, 0.5s) var(--chat-animation-easing, cubic-bezier(0.4, 0, 0.2, 1));
         }
+        
+        .n8n-chat-widget .chat-container.minimized {
+            height: auto !important;
+            max-height: 80px;
+            overflow: hidden;
+        }
+        
+        .n8n-chat-widget .chat-container.minimized .chat-interface,
+        .n8n-chat-widget .chat-container.minimized .new-conversation {
+            display: none !important;
+        }
+        
+        .n8n-chat-widget .chat-container.minimized .brand-header {
+            border-bottom: none;
+        }
 
         @keyframes slideInUp {
             from {
@@ -143,6 +158,42 @@
             border-bottom: 1px solid var(--chat--border-color);
             position: relative;
             background: linear-gradient(135deg, var(--chat--bg-primary) 0%, var(--chat--bg-secondary) 100%);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .n8n-chat-widget .brand-header:hover {
+            background: linear-gradient(135deg, var(--chat--bg-secondary) 0%, var(--chat--bg-tertiary) 100%);
+        }
+        
+        .n8n-chat-widget .brand-header.clickable {
+            cursor: pointer;
+        }
+        
+        .n8n-chat-widget .minimize-button {
+            position: absolute;
+            right: 60px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--chat--bg-tertiary);
+            border: none;
+            color: var(--chat--text-secondary);
+            cursor: pointer;
+            padding: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 16px;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+        }
+        
+        .n8n-chat-widget .minimize-button:hover {
+            background: var(--chat--color-primary);
+            color: white;
+            transform: translateY(-50%) scale(1.1);
         }
 
         .n8n-chat-widget .close-button {
@@ -685,12 +736,18 @@
     let currentSessionId = '';
     let currentTheme = config.style.theme === 'auto' ? getSystemTheme() : config.style.theme;
     let isChatClosed = false;
+    let isChatMinimized = false;
     
-    // Fonctions de persistance des conversations
+    // Fonctions de persistance des conversations avec isolation par domaine
+    function getDomainPrefix() {
+        return window.location.hostname.replace(/[^a-zA-Z0-9]/g, '-');
+    }
+    
     function saveMessageToSession(message, isUser = false) {
         if (!currentSessionId) return;
         
-        const storageKey = `n8n-chat-messages-${currentSessionId}`;
+        const domainPrefix = getDomainPrefix();
+        const storageKey = `${domainPrefix}-n8n-chat-messages-${currentSessionId}`;
         const messages = JSON.parse(sessionStorage.getItem(storageKey) || '[]');
         
         messages.push({
@@ -705,17 +762,19 @@
     function loadMessagesFromSession() {
         if (!currentSessionId) return [];
         
-        const storageKey = `n8n-chat-messages-${currentSessionId}`;
+        const domainPrefix = getDomainPrefix();
+        const storageKey = `${domainPrefix}-n8n-chat-messages-${currentSessionId}`;
         return JSON.parse(sessionStorage.getItem(storageKey) || '[]');
     }
     
     function clearSessionMessages() {
         if (!currentSessionId) return;
         
-        const storageKey = `n8n-chat-messages-${currentSessionId}`;
+        const domainPrefix = getDomainPrefix();
+        const storageKey = `${domainPrefix}-n8n-chat-messages-${currentSessionId}`;
         sessionStorage.removeItem(storageKey);
-        sessionStorage.removeItem('n8n-chat-session-id');
-        sessionStorage.removeItem('n8n-chat-active');
+        sessionStorage.removeItem(`${domainPrefix}-n8n-chat-session-id`);
+        sessionStorage.removeItem(`${domainPrefix}-n8n-chat-active`);
     }
     
     function restoreMessagesFromSession() {
@@ -741,7 +800,8 @@
     // Fonction pour gérer la fermeture du chat via N8n
     function handleChatClosure() {
         isChatClosed = true;
-        sessionStorage.setItem('n8n-chat-active', 'false');
+        const domainPrefix = getDomainPrefix();
+        sessionStorage.setItem(`${domainPrefix}-n8n-chat-active`, 'false');
         
         // Masquer le champ de saisie et le bouton d'envoi
         const chatInput = chatContainer.querySelector('.chat-input');
@@ -779,6 +839,7 @@
         // Réinitialiser les variables
         currentSessionId = '';
         isChatClosed = false;
+        isChatMinimized = false;
         
         // Vider le conteneur de messages
         messagesContainer.innerHTML = '';
@@ -797,8 +858,38 @@
             brandHeader.style.display = 'flex';
         }
         
+        // Restaurer l'état normal (non minimisé)
+        chatContainer.classList.remove('minimized');
+        
         // Fermer le widget
         chatContainer.classList.remove('open');
+    }
+    
+    // Fonctions de minimisation/restauration du chat
+    function minimizeChat() {
+        isChatMinimized = true;
+        chatContainer.classList.add('minimized');
+        
+        // Sauvegarder l'état de minimisation
+        const domainPrefix = getDomainPrefix();
+        sessionStorage.setItem(`${domainPrefix}-n8n-chat-minimized`, 'true');
+    }
+    
+    function restoreChat() {
+        isChatMinimized = false;
+        chatContainer.classList.remove('minimized');
+        
+        // Supprimer l'état de minimisation du stockage
+        const domainPrefix = getDomainPrefix();
+        sessionStorage.removeItem(`${domainPrefix}-n8n-chat-minimized`);
+    }
+    
+    function toggleChatMinimization() {
+        if (isChatMinimized) {
+            restoreChat();
+        } else {
+            minimizeChat();
+        }
     }
 
     // Create widget container
@@ -978,6 +1069,11 @@
                 <path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.758 17.303a.75.75 0 00-1.061-1.06l-1.591 1.59a.75.75 0 001.06 1.061l1.591-1.59zM6 12a.75.75 0 01-.75.75H3a.75.75 0 010-1.5h2.25A.75.75 0 016 12zM6.697 7.757a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 00-1.061 1.06l1.59 1.591z"/>
             </svg>
         </button>
+        <button class="minimize-button" title="Minimiser le chat">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19 13H5v-2h14v2z"/>
+            </svg>
+        </button>
         <button class="close-button">×</button>
     </div>
     <div class="new-conversation">
@@ -1000,6 +1096,11 @@
             <button class="theme-toggle" title="Changer le thème">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.758 17.303a.75.75 0 00-1.061-1.06l-1.591 1.59a.75.75 0 001.06 1.061l1.591-1.59zM6 12a.75.75 0 01-.75.75H3a.75.75 0 010-1.5h2.25A.75.75 0 016 12zM6.697 7.757a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 00-1.061 1.06l1.59 1.591z"/>
+                </svg>
+            </button>
+            <button class="minimize-button" title="Minimiser le chat">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19 13H5v-2h14v2z"/>
                 </svg>
             </button>
             <button class="close-button">×</button>
@@ -1101,8 +1202,9 @@
 
     async function startNewConversation() {
         // Vérifier s'il y a une session existante
-        const existingSessionId = sessionStorage.getItem('n8n-chat-session-id');
-        const chatActive = sessionStorage.getItem('n8n-chat-active');
+        const domainPrefix = getDomainPrefix();
+        const existingSessionId = sessionStorage.getItem(`${domainPrefix}-n8n-chat-session-id`);
+        const chatActive = sessionStorage.getItem(`${domainPrefix}-n8n-chat-active`);
         
         if (existingSessionId && chatActive === 'true') {
             // Restaurer la session existante
@@ -1111,8 +1213,8 @@
         } else {
             // Créer une nouvelle session
             currentSessionId = generateUUID();
-            sessionStorage.setItem('n8n-chat-session-id', currentSessionId);
-            sessionStorage.setItem('n8n-chat-active', 'true');
+            sessionStorage.setItem(`${domainPrefix}-n8n-chat-session-id`, currentSessionId);
+            sessionStorage.setItem(`${domainPrefix}-n8n-chat-active`, 'true');
             isChatClosed = false;
         }
         
@@ -1281,13 +1383,24 @@
         
         if (isOpening) {
             // Vérifier s'il y a une session active à restaurer
-            const existingSessionId = sessionStorage.getItem('n8n-chat-session-id');
-            const chatActive = sessionStorage.getItem('n8n-chat-active');
+            const domainPrefix = getDomainPrefix();
+            const existingSessionId = sessionStorage.getItem(`${domainPrefix}-n8n-chat-session-id`);
+            const chatActive = sessionStorage.getItem(`${domainPrefix}-n8n-chat-active`);
+            const chatMinimized = sessionStorage.getItem(`${domainPrefix}-n8n-chat-minimized`);
             
             if (existingSessionId && chatActive === 'true') {
                 // Restaurer la session existante
                 currentSessionId = existingSessionId;
                 isChatClosed = chatActive === 'false';
+                
+                // Restaurer l'état de minimisation
+                if (chatMinimized === 'true') {
+                    isChatMinimized = true;
+                    chatContainer.classList.add('minimized');
+                } else {
+                    isChatMinimized = false;
+                    chatContainer.classList.remove('minimized');
+                }
                 
                 // Passer directement à l'interface de chat
                 const brandHeader = chatContainer.querySelector('.brand-header');
@@ -1315,12 +1428,20 @@
     
     // Fonction d'initialisation au chargement de la page
     function initializeOnPageLoad() {
-        const existingSessionId = sessionStorage.getItem('n8n-chat-session-id');
-        const chatActive = sessionStorage.getItem('n8n-chat-active');
+        const domainPrefix = getDomainPrefix();
+        const existingSessionId = sessionStorage.getItem(`${domainPrefix}-n8n-chat-session-id`);
+        const chatActive = sessionStorage.getItem(`${domainPrefix}-n8n-chat-active`);
+        const chatMinimized = sessionStorage.getItem(`${domainPrefix}-n8n-chat-minimized`);
         
         if (existingSessionId && chatActive === 'true') {
             currentSessionId = existingSessionId;
             isChatClosed = chatActive === 'false';
+            
+            // Restaurer l'état de minimisation
+            if (chatMinimized === 'true') {
+                isChatMinimized = true;
+                chatContainer.classList.add('minimized');
+            }
         }
     }
     
@@ -1343,6 +1464,31 @@
             } else {
                 // Si pas de messages, fermer simplement
                 chatContainer.classList.remove('open');
+            }
+        });
+    });
+    
+    // Minimize button handlers
+    const minimizeButtons = chatContainer.querySelectorAll('.minimize-button');
+    minimizeButtons.forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.stopPropagation(); // Empêcher la propagation vers l'en-tête
+            toggleChatMinimization();
+        });
+    });
+    
+    // Brand header click handler pour minimisation/restauration
+    const brandHeaders = chatContainer.querySelectorAll('.brand-header');
+    brandHeaders.forEach(header => {
+        header.addEventListener('click', (e) => {
+            // Ne pas déclencher si on clique sur un bouton
+            if (e.target.closest('button')) {
+                return;
+            }
+            
+            // Seulement si le chat est ouvert et qu'il y a une session active
+            if (chatContainer.classList.contains('open') && currentSessionId) {
+                toggleChatMinimization();
             }
         });
     });
