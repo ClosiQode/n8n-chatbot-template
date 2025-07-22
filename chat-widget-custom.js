@@ -605,18 +605,41 @@
             .n8n-chat-widget .chat-container {
                 width: 100vw;
                 height: 100vh;
+                height: 100dvh; /* Utilise la hauteur dynamique du viewport pour iOS */
                 bottom: 0;
                 right: 0;
+                left: 0;
+                top: 0;
                 border-radius: 0;
                 transform: translateY(100%);
+                position: fixed;
+                margin: 0;
+                /* Corrections spécifiques pour iOS Safari */
+                -webkit-overflow-scrolling: touch;
+                overflow: hidden;
             }
             
             .n8n-chat-widget .chat-container.position-left {
                 left: 0;
+                right: 0;
             }
 
             .n8n-chat-widget .chat-container.open {
-                transform: translateY(0);
+                transform: translateY(0) translateZ(0); /* Force l'accélération matérielle */
+                -webkit-transform: translateY(0) translateZ(0);
+            }
+            
+            /* Correction pour le contenu du chat sur mobile */
+            .n8n-chat-widget .chat-container .chat-interface {
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+            }
+            
+            .n8n-chat-widget .chat-container .chat-messages {
+                flex: 1;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
             }
         }
 
@@ -690,6 +713,30 @@
     function getDomainBasedKey(baseKey) {
         const domain = window.location.hostname;
         return `${baseKey}-${domain}`;
+    }
+    
+    // Fonction pour détecter iOS Safari
+    function isIOSSafari() {
+        const ua = navigator.userAgent;
+        const iOS = /iPad|iPhone|iPod/.test(ua);
+        const webkit = /WebKit/.test(ua);
+        const chrome = /CriOS|Chrome/.test(ua);
+        return iOS && webkit && !chrome;
+    }
+    
+    // Fonction pour corriger les problèmes de viewport sur iOS
+    function fixIOSViewport() {
+        if (isIOSSafari()) {
+            // Force un recalcul du layout
+            document.body.style.height = '100vh';
+            document.body.style.height = '100dvh';
+            
+            // Correction pour le viewport sur iOS
+            const viewport = document.querySelector('meta[name=viewport]');
+            if (viewport) {
+                viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover');
+            }
+        }
     }
     
     // Fonctions de persistance des conversations
@@ -1286,6 +1333,9 @@
         const isOpening = !chatContainer.classList.contains('open');
         
         if (isOpening) {
+            // Correction pour iOS avant d'ouvrir le widget
+            fixIOSViewport();
+            
             // Vérifier s'il y a une session active à restaurer
             const existingSessionId = sessionStorage.getItem(getDomainBasedKey('n8n-chat-session-id'));
             const chatActive = sessionStorage.getItem(getDomainBasedKey('n8n-chat-active'));
@@ -1313,6 +1363,14 @@
                         chatInput.style.display = 'none';
                     }
                 }
+            }
+            
+            // Force un reflow sur iOS pour corriger le positionnement
+            if (isIOSSafari()) {
+                setTimeout(() => {
+                    chatContainer.style.transform = 'translateY(0) translateZ(0)';
+                    chatContainer.offsetHeight; // Force reflow
+                }, 50);
             }
         }
         
