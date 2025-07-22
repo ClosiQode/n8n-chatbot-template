@@ -603,30 +603,20 @@
 
         @media (max-width: 480px) {
             .n8n-chat-widget .chat-container {
-                width: 100vw !important;
-                height: 100vh !important;
-                bottom: 0 !important;
-                right: 0 !important;
-                left: auto !important;
-                border-radius: 0 !important;
-                transform: translateY(100%) !important;
-                position: fixed !important;
-                top: auto !important;
+                width: 100vw;
+                height: 100vh;
+                bottom: 0;
+                right: 0;
+                border-radius: 0;
+                transform: translateY(100%);
             }
             
             .n8n-chat-widget .chat-container.position-left {
-                left: 0 !important;
-                right: auto !important;
+                left: 0;
             }
 
             .n8n-chat-widget .chat-container.open {
-                transform: translateY(0) !important;
-            }
-            
-            /* Force reset des transformations lors de la fermeture */
-            .n8n-chat-widget .chat-container:not(.open) {
-                transform: translateY(100%) !important;
-                opacity: 0 !important;
+                transform: translateY(0);
             }
         }
 
@@ -1292,30 +1282,10 @@
         textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
     });
     
-    // Fonction pour réinitialiser les styles mobiles
-    function resetMobileStyles() {
-        // Force la réinitialisation des transformations sur mobile
-        if (window.innerWidth <= 480) {
-            chatContainer.style.transform = '';
-            chatContainer.style.opacity = '';
-            chatContainer.style.position = '';
-            chatContainer.style.top = '';
-            chatContainer.style.left = '';
-            chatContainer.style.right = '';
-            chatContainer.style.bottom = '';
-            
-            // Force un reflow pour s'assurer que les styles sont appliqués
-            chatContainer.offsetHeight;
-        }
-    }
-    
     toggleButton.addEventListener('click', () => {
         const isOpening = !chatContainer.classList.contains('open');
         
         if (isOpening) {
-            // Réinitialiser les styles mobiles avant l'ouverture
-            resetMobileStyles();
-            
             // Vérifier s'il y a une session active à restaurer
             const existingSessionId = sessionStorage.getItem(getDomainBasedKey('n8n-chat-session-id'));
             const chatActive = sessionStorage.getItem(getDomainBasedKey('n8n-chat-active'));
@@ -1344,14 +1314,16 @@
                     }
                 }
             }
-        } else {
-            // Lors de la fermeture, s'assurer que les styles sont nettoyés
-            setTimeout(() => {
-                resetMobileStyles();
-            }, 100);
         }
         
-        chatContainer.classList.toggle('open');
+        if (chatContainer.classList.contains('open')) {
+        chatContainer.classList.remove('open');
+    } else {
+        // Force reflow to ensure consistent display and animation on reopen, especially on mobile
+        chatContainer.classList.remove('open');
+        void chatContainer.offsetHeight;
+        chatContainer.classList.add('open');
+    }
     });
     
     // Fonction d'initialisation au chargement de la page
@@ -1367,36 +1339,6 @@
     
     // Initialiser au chargement
     initializeOnPageLoad();
-    
-    // Gestion des changements d'orientation et de viewport sur mobile
-    let resizeTimeout;
-    function handleViewportChange() {
-        clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(() => {
-            if (window.innerWidth <= 480 && chatContainer.classList.contains('open')) {
-                resetMobileStyles();
-                // Force un nouveau rendu
-                chatContainer.style.display = 'none';
-                chatContainer.offsetHeight; // Force reflow
-                chatContainer.style.display = '';
-            }
-        }, 150);
-    }
-    
-    // Écouter les changements de taille de viewport
-    window.addEventListener('resize', handleViewportChange);
-    window.addEventListener('orientationchange', handleViewportChange);
-    
-    // Gestion spécifique pour iOS Safari (changement de hauteur avec la barre d'adresse)
-    if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
-        let initialViewportHeight = window.innerHeight;
-        window.addEventListener('scroll', () => {
-            if (Math.abs(window.innerHeight - initialViewportHeight) > 100) {
-                handleViewportChange();
-                initialViewportHeight = window.innerHeight;
-            }
-        });
-    }
 
     // Theme toggle event listeners
     themeToggleButtons.forEach(button => {
