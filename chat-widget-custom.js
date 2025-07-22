@@ -603,43 +603,30 @@
 
         @media (max-width: 480px) {
             .n8n-chat-widget .chat-container {
-                width: 100vw;
-                height: 100vh;
-                height: 100dvh; /* Utilise la hauteur dynamique du viewport pour iOS */
-                bottom: 0;
-                right: 0;
-                left: 0;
-                top: 0;
-                border-radius: 0;
-                transform: translateY(100%);
-                position: fixed;
-                margin: 0;
-                /* Corrections spécifiques pour iOS Safari */
-                -webkit-overflow-scrolling: touch;
-                overflow: hidden;
+                width: 100vw !important;
+                height: 100vh !important;
+                bottom: 0 !important;
+                right: 0 !important;
+                left: auto !important;
+                border-radius: 0 !important;
+                transform: translateY(100%) !important;
+                position: fixed !important;
+                top: auto !important;
             }
             
             .n8n-chat-widget .chat-container.position-left {
-                left: 0;
-                right: 0;
+                left: 0 !important;
+                right: auto !important;
             }
 
             .n8n-chat-widget .chat-container.open {
-                transform: translateY(0) translateZ(0); /* Force l'accélération matérielle */
-                -webkit-transform: translateY(0) translateZ(0);
+                transform: translateY(0) !important;
             }
             
-            /* Correction pour le contenu du chat sur mobile */
-            .n8n-chat-widget .chat-container .chat-interface {
-                height: 100%;
-                display: flex;
-                flex-direction: column;
-            }
-            
-            .n8n-chat-widget .chat-container .chat-messages {
-                flex: 1;
-                overflow-y: auto;
-                -webkit-overflow-scrolling: touch;
+            /* Force reset des transformations lors de la fermeture */
+            .n8n-chat-widget .chat-container:not(.open) {
+                transform: translateY(100%) !important;
+                opacity: 0 !important;
             }
         }
 
@@ -713,30 +700,6 @@
     function getDomainBasedKey(baseKey) {
         const domain = window.location.hostname;
         return `${baseKey}-${domain}`;
-    }
-    
-    // Fonction pour détecter iOS Safari
-    function isIOSSafari() {
-        const ua = navigator.userAgent;
-        const iOS = /iPad|iPhone|iPod/.test(ua);
-        const webkit = /WebKit/.test(ua);
-        const chrome = /CriOS|Chrome/.test(ua);
-        return iOS && webkit && !chrome;
-    }
-    
-    // Fonction pour corriger les problèmes de viewport sur iOS
-    function fixIOSViewport() {
-        if (isIOSSafari()) {
-            // Force un recalcul du layout
-            document.body.style.height = '100vh';
-            document.body.style.height = '100dvh';
-            
-            // Correction pour le viewport sur iOS
-            const viewport = document.querySelector('meta[name=viewport]');
-            if (viewport) {
-                viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover');
-            }
-        }
     }
     
     // Fonctions de persistance des conversations
@@ -1329,12 +1292,29 @@
         textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
     });
     
+    // Fonction pour réinitialiser les styles mobiles
+    function resetMobileStyles() {
+        // Force la réinitialisation des transformations sur mobile
+        if (window.innerWidth <= 480) {
+            chatContainer.style.transform = '';
+            chatContainer.style.opacity = '';
+            chatContainer.style.position = '';
+            chatContainer.style.top = '';
+            chatContainer.style.left = '';
+            chatContainer.style.right = '';
+            chatContainer.style.bottom = '';
+            
+            // Force un reflow pour s'assurer que les styles sont appliqués
+            chatContainer.offsetHeight;
+        }
+    }
+    
     toggleButton.addEventListener('click', () => {
         const isOpening = !chatContainer.classList.contains('open');
         
         if (isOpening) {
-            // Correction pour iOS avant d'ouvrir le widget
-            fixIOSViewport();
+            // Réinitialiser les styles mobiles avant l'ouverture
+            resetMobileStyles();
             
             // Vérifier s'il y a une session active à restaurer
             const existingSessionId = sessionStorage.getItem(getDomainBasedKey('n8n-chat-session-id'));
@@ -1364,14 +1344,11 @@
                     }
                 }
             }
-            
-            // Force un reflow sur iOS pour corriger le positionnement
-            if (isIOSSafari()) {
-                setTimeout(() => {
-                    chatContainer.style.transform = 'translateY(0) translateZ(0)';
-                    chatContainer.offsetHeight; // Force reflow
-                }, 50);
-            }
+        } else {
+            // Lors de la fermeture, s'assurer que les styles sont nettoyés
+            setTimeout(() => {
+                resetMobileStyles();
+            }, 100);
         }
         
         chatContainer.classList.toggle('open');
@@ -1390,6 +1367,36 @@
     
     // Initialiser au chargement
     initializeOnPageLoad();
+    
+    // Gestion des changements d'orientation et de viewport sur mobile
+    let resizeTimeout;
+    function handleViewportChange() {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+            if (window.innerWidth <= 480 && chatContainer.classList.contains('open')) {
+                resetMobileStyles();
+                // Force un nouveau rendu
+                chatContainer.style.display = 'none';
+                chatContainer.offsetHeight; // Force reflow
+                chatContainer.style.display = '';
+            }
+        }, 150);
+    }
+    
+    // Écouter les changements de taille de viewport
+    window.addEventListener('resize', handleViewportChange);
+    window.addEventListener('orientationchange', handleViewportChange);
+    
+    // Gestion spécifique pour iOS Safari (changement de hauteur avec la barre d'adresse)
+    if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+        let initialViewportHeight = window.innerHeight;
+        window.addEventListener('scroll', () => {
+            if (Math.abs(window.innerHeight - initialViewportHeight) > 100) {
+                handleViewportChange();
+                initialViewportHeight = window.innerHeight;
+            }
+        });
+    }
 
     // Theme toggle event listeners
     themeToggleButtons.forEach(button => {
