@@ -616,7 +616,7 @@
             }
 
             .n8n-chat-widget .chat-container.open {
-                transform: translateY(0);
+                transform: translateY(0) translateZ(0);
             }
         }
 
