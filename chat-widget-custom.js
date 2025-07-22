@@ -220,8 +220,8 @@
 
         .n8n-chat-widget .new-conversation {
             position: absolute;
-            top: var(--welcome-screen-top, 25%);
-            left: var(--welcome-screen-left, 0%);
+            top: var(--welcome-screen-top, 50%);
+            left: var(--welcome-screen-left, 50%);
             transform: var(--welcome-screen-transform, translate(-50%, -50%));
             padding: 30px;
             text-align: center;
@@ -1316,14 +1316,7 @@
             }
         }
         
-        if (chatContainer.classList.contains('open')) {
-        chatContainer.classList.remove('open');
-    } else {
-        // Force reflow to ensure consistent display and animation on reopen, especially on mobile
-        chatContainer.classList.remove('open');
-        void chatContainer.offsetHeight;
-        chatContainer.classList.add('open');
-    }
+        chatContainer.classList.toggle('open');
     });
     
     // Fonction d'initialisation au chargement de la page
