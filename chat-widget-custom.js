@@ -105,17 +105,7 @@
         .n8n-chat-widget .minimize-button:hover {
             background: var(--chat--color-primary);
             color: white;
-            transform: rotate(180deg);
-        }
-        
-        .n8n-chat-widget .theme-toggle {
-            right: 100px;
-        }
-
-        .n8n-chat-widget .minimize-button:hover {
-            background: var(--chat--color-primary);
-            color: white;
-            transform: rotate(180deg);
+            transform: translateY(-50%) rotate(180deg);
         }
 
         .n8n-chat-widget .chat-container.position-left {
@@ -617,6 +607,8 @@
         .n8n-chat-widget .theme-toggle {
             position: absolute;
             right: 100px;
+            top: 50%;
+            transform: translateY(-50%);
             background: var(--chat--bg-tertiary);
             border: 1px solid var(--chat--border-color);
             border-radius: 50%;
@@ -1199,7 +1191,8 @@
             // Remove typing indicator
             typingIndicator.remove();
 
-            if (config.branding.initialMessage) {
+            // Ajouter le message initial seulement pour une nouvelle session
+            if (config.branding.initialMessage && !existingSessionId) {
                 addBotMessage(config.branding.initialMessage);
             }
 
