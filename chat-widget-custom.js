@@ -95,6 +95,30 @@
             animation: slideInUp var(--chat-animation-speed, 0.5s) var(--chat-animation-easing, cubic-bezier(0.4, 0, 0.2, 1));
         }
 
+        .n8n-chat-widget .minimize-button {
+            background: var(--chat--bg-tertiary);
+            border: none;
+            color: var(--chat--text-secondary);
+            cursor: pointer;
+            padding: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 18px;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            margin-left: 8px;
+        }
+
+        .n8n-chat-widget .minimize-button:hover {
+            background: var(--chat--color-primary);
+            color: white;
+            transform: rotate(180deg);
+        }
+
+
         @keyframes slideInUp {
             from {
                 transform: translateY(100%) scale(0.8);
@@ -1355,28 +1379,3 @@
         });
     });
 })();
-
-// Add styles for minimize button
-// Insert after close-button styles
-.n8n-chat-widget .minimize-button {
-    background: var(--chat--bg-tertiary);
-    border: none;
-    color: var(--chat--text-secondary);
-    cursor: pointer;
-    padding: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    font-size: 18px;
-    border-radius: 50%;
-    width: 32px;
-    height: 32px;
-    margin-left: 8px;
-}
-
-.n8n-chat-widget .minimize-button:hover {
-    background: var(--chat--color-primary);
-    color: white;
-    transform: rotate(180deg);
-}
