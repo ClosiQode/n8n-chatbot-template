@@ -625,7 +625,7 @@
         .n8n-chat-widget .theme-toggle:hover {
             background: var(--chat--color-primary);
             color: white;
-            transform: rotate(180deg);
+            transform: translateY(-50%) rotate(180deg);
             transition: all var(--chat-animation-speed, 0.3s) var(--chat-animation-easing, cubic-bezier(0.4, 0, 0.2, 1));
         }
 
