@@ -763,7 +763,11 @@
                 userMessageDiv.textContent = msg.text;
                 messagesContainer.appendChild(userMessageDiv);
             } else {
-                addBotMessage(msg.text);
+                // Créer le message du bot sans le sauvegarder à nouveau
+                const botMessageDiv = document.createElement('div');
+                botMessageDiv.className = 'chat-message bot';
+                botMessageDiv.innerHTML = marked.parse(msg.text);
+                messagesContainer.appendChild(botMessageDiv);
             }
         });
         
