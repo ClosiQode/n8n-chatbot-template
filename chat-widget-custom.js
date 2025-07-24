@@ -105,7 +105,7 @@
         .n8n-chat-widget .minimize-button:hover {
             background: var(--chat--color-primary);
             color: white;
-            transform: translateY(-50%) rotate(180deg);
+            transform: rotate(180deg);
         }
         
         .n8n-chat-widget .theme-toggle {
