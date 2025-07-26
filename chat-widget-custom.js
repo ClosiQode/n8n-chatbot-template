@@ -78,7 +78,7 @@
             font-weight: var(--chat-font-weight, 400);
             backdrop-filter: blur(var(--chat-backdrop-blur, 20px));
             transition: all var(--chat-animation-speed, 0.4s) var(--chat-animation-easing, cubic-bezier(0.4, 0, 0.2, 1));
-            transform: translateY(100%) scale(0.8) translateZ(0);
+            transform: translateY(100%) scale(0.8);
             opacity: var(--chat-opacity, 0);
         }
 
@@ -116,7 +116,7 @@
         .n8n-chat-widget .chat-container.open {
             display: flex;
             flex-direction: column;
-            transform: translateY(0) scale(1) translateZ(0);
+            transform: translateY(0) scale(1);
             opacity: 1;
             animation: slideInUp var(--chat-animation-speed, 0.5s) var(--chat-animation-easing, cubic-bezier(0.4, 0, 0.2, 1));
         }
@@ -266,8 +266,11 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            animation: shimmer calc(var(--chat-animation-speed, 0.5s) * 6) ease-in-out infinite;
             background-size: 200% 100%;
+        }
+
+        .n8n-chat-widget .play-shimmer {
+            animation: shimmer calc(var(--chat-animation-speed, 0.5s) * 6) ease-in-out infinite;
         }
 
         .n8n-chat-widget .new-chat-btn {
@@ -1326,12 +1329,24 @@
         });
     });
     
+    function forceReflow(element) {
+        element.style.display = 'none';
+        element.offsetHeight; // Force reflow
+        element.style.display = '';
+    }
+
     toggleButton.addEventListener('click', () => {
         const isOpening = !chatContainer.classList.contains('open');
-        
+        const welcomeText = chatContainer.querySelector('.welcome-text');
+
         if (isOpening) {
-            // Trigger a reflow to fix rendering issues on iOS
-            void chatContainer.offsetHeight;
+            // Force reflow to fix rendering issues on iOS
+            forceReflow(chatContainer);
+
+            // Add shimmer animation
+            if (welcomeText) {
+                welcomeText.classList.add('play-shimmer');
+            }
 
             // Vérifier s'il y a une session active à restaurer
             const existingSessionId = sessionStorage.getItem(getDomainBasedKey('n8n-chat-session-id'));
@@ -1360,6 +1375,11 @@
                         chatInput.style.display = 'none';
                     }
                 }
+            }
+        } else {
+            // Remove shimmer animation when closing
+            if (welcomeText) {
+                welcomeText.classList.remove('play-shimmer');
             }
         }
         
