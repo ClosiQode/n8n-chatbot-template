@@ -1350,8 +1350,7 @@
                 }
                 setTimeout(() => {
                     forceReflow(newConversation);
-                    forceReflow(chatInterface);
-                }, 10); // Délai de 100ms pour s'assurer que la transition est terminée
+                }, 10);
             }
 
         } else {
