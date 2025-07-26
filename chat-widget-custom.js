@@ -1326,10 +1326,19 @@
         });
     });
     
+    function forceReflow(element) {
+        element.style.display = 'none';
+        element.offsetHeight; // Force reflow
+        element.style.display = '';
+    }
+
     toggleButton.addEventListener('click', () => {
         const isOpening = !chatContainer.classList.contains('open');
         
         if (isOpening) {
+            // Force reflow to fix rendering issues on iOS
+            forceReflow(chatContainer);
+
             // Vérifier s'il y a une session active à restaurer
             const existingSessionId = sessionStorage.getItem(getDomainBasedKey('n8n-chat-session-id'));
             const chatActive = sessionStorage.getItem(getDomainBasedKey('n8n-chat-active'));
