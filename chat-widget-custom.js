@@ -1011,26 +1011,28 @@
     
     // Remplacez les sections HTML par :
     const newConversationHTML = `
-    <div class="brand-header">
-        ${generateLogosHTML(config)}
-        <span>${config.branding.name}</span>
-        <button class="theme-toggle" title="Changer le thème">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.758 17.303a.75.75 0 00-1.061-1.06l-1.591 1.59a.75.75 0 001.06 1.061l1.591-1.59zM6 12a.75.75 0 01-.75.75H3a.75.75 0 010-1.5h2.25A.75.75 0 016 12zM6.697 7.757a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 00-1.061 1.06l1.59 1.591z"/>
-            </svg>
-        </button>
-        <button class="minimize-button" title="Réduire">−</button>
-        <button class="close-button">×</button>
-    </div>
-    <div class="new-conversation">
-        <h2 class="welcome-text">${config.branding.welcomeText}</h2>
-        <button class="new-chat-btn">
-            <svg class="message-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                <path fill="currentColor" d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.2L4 17.2V4h16v12z"/>
-            </svg>
-            ${config.branding.sendMessage}
-        </button>
-        <p class="response-text">${config.branding.responseTimeText}</p>
+    <div class="home-screen">
+        <div class="brand-header">
+            ${generateLogosHTML(config)}
+            <span>${config.branding.name}</span>
+            <button class="theme-toggle" title="Changer le thème">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.758 17.303a.75.75 0 00-1.061-1.06l-1.591 1.59a.75.75 0 001.06 1.061l1.591-1.59zM6 12a.75.75 0 01-.75.75H3a.75.75 0 010-1.5h2.25A.75.75 0 016 12zM6.697 7.757a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 00-1.061 1.06l1.59 1.591z"/>
+                </svg>
+            </button>
+            <button class="minimize-button" title="Réduire">−</button>
+            <button class="close-button">×</button>
+        </div>
+        <div class="new-conversation">
+            <h2 class="welcome-text">${config.branding.welcomeText}</h2>
+            <button class="new-chat-btn">
+                <svg class="message-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.2L4 17.2V4h16v12z"/>
+                </svg>
+                ${config.branding.sendMessage}
+            </button>
+            <p class="response-text">${config.branding.responseTimeText}</p>
+        </div>
     </div>
     `;
     
@@ -1169,11 +1171,7 @@
         }];
 
         try {
-            const brandHeader = chatContainer.querySelector('.brand-header');
-            if (brandHeader) {
-                brandHeader.style.display = 'none';
-            }
-            chatContainer.querySelector('.new-conversation').style.display = 'none';
+            chatContainer.querySelector('.home-screen').style.display = 'none';
             chatInterface.classList.add('active');
 
             // Restaurer les messages existants avant d'afficher l'indicateur de frappe
@@ -1338,7 +1336,7 @@
     toggleButton.addEventListener('click', () => {
         const isOpening = !chatContainer.classList.contains('open');
         const welcomeText = chatContainer.querySelector('.welcome-text');
-        const newConversation = chatContainer.querySelector('.new-conversation');
+        const homeScreen = chatContainer.querySelector('.home-screen');
 
         chatContainer.classList.toggle('open');
 
@@ -1352,13 +1350,7 @@
                 currentSessionId = existingSessionId;
                 isChatClosed = chatActive === 'false';
 
-                // On s'assure que l'écran d'accueil est bien masqué
-                newConversation.style.display = 'none';
-                const brandHeader = chatContainer.querySelector('.brand-header');
-                if (brandHeader) {
-                    brandHeader.style.display = 'none';
-                }
-                
+                homeScreen.style.display = 'none';
                 chatInterface.classList.add('active');
                 restoreMessagesFromSession();
 
@@ -1370,7 +1362,7 @@
                 }
             } else {
                 // Aucune session, on affiche l'écran d'accueil
-                newConversation.style.display = 'block';
+                homeScreen.style.display = 'block';
                 chatInterface.classList.remove('active');
                 if (welcomeText) {
                     welcomeText.classList.add('play-shimmer');
@@ -1379,9 +1371,9 @@
 
             // Forcer le reflow pour les problèmes de rendu iOS
             setTimeout(() => {
-                forceReflow(newConversation);
+                forceReflow(homeScreen);
                 forceReflow(chatInterface);
-            }, 100);
+            }, 10); // Délai réduit
 
         } else {
             // --- Logique de fermeture ---
