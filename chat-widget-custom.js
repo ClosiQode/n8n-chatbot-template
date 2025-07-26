@@ -78,7 +78,7 @@
             font-weight: var(--chat-font-weight, 400);
             backdrop-filter: blur(var(--chat-backdrop-blur, 20px));
             transition: all var(--chat-animation-speed, 0.4s) var(--chat-animation-easing, cubic-bezier(0.4, 0, 0.2, 1));
-            transform: translateY(100%) scale(0.8);
+            transform: translateY(100%) scale(0.8) translateZ(0);
             opacity: var(--chat-opacity, 0);
         }
 
@@ -116,7 +116,7 @@
         .n8n-chat-widget .chat-container.open {
             display: flex;
             flex-direction: column;
-            transform: translateY(0) scale(1);
+            transform: translateY(0) scale(1) translateZ(0);
             opacity: 1;
             animation: slideInUp var(--chat-animation-speed, 0.5s) var(--chat-animation-easing, cubic-bezier(0.4, 0, 0.2, 1));
         }
@@ -1326,18 +1326,12 @@
         });
     });
     
-    function forceReflow(element) {
-        element.style.display = 'none';
-        element.offsetHeight; // Force reflow
-        element.style.display = '';
-    }
-
     toggleButton.addEventListener('click', () => {
         const isOpening = !chatContainer.classList.contains('open');
         
         if (isOpening) {
-            // Force reflow to fix rendering issues on iOS
-            forceReflow(chatContainer);
+            // Trigger a reflow to fix rendering issues on iOS
+            void chatContainer.offsetHeight;
 
             // Vérifier s'il y a une session active à restaurer
             const existingSessionId = sessionStorage.getItem(getDomainBasedKey('n8n-chat-session-id'));
