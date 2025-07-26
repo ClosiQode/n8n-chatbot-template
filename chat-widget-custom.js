@@ -1335,7 +1335,7 @@
             if (existingSessionId && chatActive === 'true') {
                 // Si une session existe, on la restaure et on masque la vue "nouvelle conversation"
                 newConversation.style.display = 'none';
-                chatInterface.classList.add('active');
+                chatInterface.classList.add('none');
                 restoreMessagesFromSession();
             } else {
                 // Sinon, on s'assure que la vue "nouvelle conversation" est visible
@@ -1350,7 +1350,7 @@
             setTimeout(() => {
                 forceReflow(newConversation);
                 forceReflow(chatInterface);
-            }, 100); // Délai de 100ms pour s'assurer que la transition est terminée
+            }, 10); // Délai de 100ms pour s'assurer que la transition est terminée
 
         } else {
             // Quand on ferme, on retire l'animation pour qu'elle se relance à la prochaine ouverture
