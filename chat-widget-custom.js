@@ -1335,27 +1335,24 @@
             if (existingSessionId && chatActive === 'true') {
                 // Si une session existe, on la restaure et on masque la vue "nouvelle conversation"
                 newConversation.style.display = 'none';
-                chatInterface.classList.add('none');
+                chatInterface.classList.add('active');
                 restoreMessagesFromSession();
+                setTimeout(() => {
+                    forceReflow(chatInterface);
+                }, 10); // Délai de 100ms pour s'assurer que la transition est terminée
             } else {
                 // Sinon, on s'assure que la vue "nouvelle conversation" est visible
                 newConversation.style.display = 'block';
                 chatInterface.classList.remove('active');
                 // S'assurer que l'animation est appliquée
-                // Forcer le reflow pour les problèmes de rendu iOS
-                setTimeout(() => {
-                    forceReflow(chatInterface);
-                }, 10); // Délai de 100ms pour s'assurer que la transition est terminée
                 if (welcomeText) {
                     welcomeText.classList.add('play-shimmer');
                 }
-                // Forcer le reflow pour les problèmes de rendu iOS
                 setTimeout(() => {
                     forceReflow(newConversation);
                     forceReflow(chatInterface);
                 }, 10); // Délai de 100ms pour s'assurer que la transition est terminée
             }
-
 
         } else {
             // Quand on ferme, on retire l'animation pour qu'elle se relance à la prochaine ouverture
