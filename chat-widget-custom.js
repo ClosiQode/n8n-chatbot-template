@@ -441,7 +441,7 @@
             border: 2px solid var(--chat--border-color);
             border-radius: 25px;
             padding: 14px 20px;
-            font-size: 14px;
+            font-size: 16px;
             resize: none;
             outline: none;
             font-family: inherit;
