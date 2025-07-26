@@ -1344,9 +1344,9 @@
             forceReflow(chatContainer);
 
             // Add shimmer animation
-            if (welcomeText) {
-                welcomeText.classList.add('play-shimmer');
-            }
+            // if (welcomeText) {
+            //     welcomeText.classList.add('play-shimmer');
+            // }
 
             // Vérifier s'il y a une session active à restaurer
             const existingSessionId = sessionStorage.getItem(getDomainBasedKey('n8n-chat-session-id'));
