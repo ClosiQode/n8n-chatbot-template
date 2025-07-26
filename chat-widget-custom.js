@@ -333,7 +333,7 @@
         .n8n-chat-widget .chat-interface {
             display: none;
             flex-direction: column;
-            height: 100%;
+            height: calc(100% - 73px); /* Hauteur totale - hauteur du header */
             animation: fadeInScale var(--chat-animation-speed, 0.5s) var(--chat-animation-easing, cubic-bezier(0.4, 0, 0.2, 1));
         }
 
@@ -1009,46 +1009,35 @@
     return logosHTML;
     }
     
-    // Remplacez les sections HTML par :
+    const brandHeaderHTML = `
+    <div class="brand-header">
+        ${generateLogosHTML(config)}
+        <span>${config.branding.name}</span>
+        <button class="theme-toggle" title="Changer le thème">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.758 17.303a.75.75 0 00-1.061-1.06l-1.591 1.59a.75.75 0 001.06 1.061l1.591-1.59zM6 12a.75.75 0 01-.75.75H3a.75.75 0 010-1.5h2.25A.75.75 0 016 12zM6.697 7.757a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 00-1.061 1.06l1.59 1.591z"/>
+            </svg>
+        </button>
+        <button class="minimize-button" title="Réduire">−</button>
+        <button class="close-button">×</button>
+    </div>
+    `;
+
     const newConversationHTML = `
-    <div class="home-screen">
-        <div class="brand-header">
-            ${generateLogosHTML(config)}
-            <span>${config.branding.name}</span>
-            <button class="theme-toggle" title="Changer le thème">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.758 17.303a.75.75 0 00-1.061-1.06l-1.591 1.59a.75.75 0 001.06 1.061l1.591-1.59zM6 12a.75.75 0 01-.75.75H3a.75.75 0 010-1.5h2.25A.75.75 0 016 12zM6.697 7.757a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 00-1.061 1.06l1.59 1.591z"/>
-                </svg>
-            </button>
-            <button class="minimize-button" title="Réduire">−</button>
-            <button class="close-button">×</button>
-        </div>
-        <div class="new-conversation">
-            <h2 class="welcome-text">${config.branding.welcomeText}</h2>
-            <button class="new-chat-btn">
-                <svg class="message-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                    <path fill="currentColor" d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.2L4 17.2V4h16v12z"/>
-                </svg>
-                ${config.branding.sendMessage}
-            </button>
-            <p class="response-text">${config.branding.responseTimeText}</p>
-        </div>
+    <div class="new-conversation">
+        <h2 class="welcome-text">${config.branding.welcomeText}</h2>
+        <button class="new-chat-btn">
+            <svg class="message-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.2L4 17.2V4h16v12z"/>
+            </svg>
+            ${config.branding.sendMessage}
+        </button>
+        <p class="response-text">${config.branding.responseTimeText}</p>
     </div>
     `;
     
     const chatInterfaceHTML = `
     <div class="chat-interface">
-        <div class="brand-header">
-            ${generateLogosHTML(config)}
-            <span>${config.branding.name}</span>
-            <button class="theme-toggle" title="Changer le thème">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.758 17.303a.75.75 0 00-1.061-1.06l-1.591 1.59a.75.75 0 001.06 1.061l1.591-1.59zM6 12a.75.75 0 01-.75.75H3a.75.75 0 010-1.5h2.25A.75.75 0 016 12zM6.697 7.757a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 00-1.061 1.06l1.59 1.591z"/>
-                </svg>
-            </button>
-            <button class="minimize-button" title="Réduire">−</button>
-            <button class="close-button">×</button>
-        </div>
         <div class="chat-messages"></div>
         <div class="chat-input">
             <textarea placeholder="${config.branding.placeholder}" rows="1"></textarea>
@@ -1064,7 +1053,7 @@
     </div>
     `;
     
-    chatContainer.innerHTML = newConversationHTML + chatInterfaceHTML;
+    chatContainer.innerHTML = brandHeaderHTML + newConversationHTML + chatInterfaceHTML;
     
     const toggleButton = document.createElement('button');
     toggleButton.className = `chat-toggle${config.style.position === 'left' ? ' position-left' : ''}`;
@@ -1082,6 +1071,7 @@
     document.body.appendChild(widgetContainer);
 
     // Get DOM elements
+    const newConversation = chatContainer.querySelector('.new-conversation');
     const newChatBtn = chatContainer.querySelector('.new-chat-btn');
     const chatInterface = chatContainer.querySelector('.chat-interface');
     const messagesContainer = chatContainer.querySelector('.chat-messages');
@@ -1171,7 +1161,7 @@
         }];
 
         try {
-            chatContainer.querySelector('.home-screen').style.display = 'none';
+            newConversation.style.display = 'none';
             chatInterface.classList.add('active');
 
             // Restaurer les messages existants avant d'afficher l'indicateur de frappe
@@ -1335,48 +1325,35 @@
 
     toggleButton.addEventListener('click', () => {
         const isOpening = !chatContainer.classList.contains('open');
-        const welcomeText = chatContainer.querySelector('.welcome-text');
-        const homeScreen = chatContainer.querySelector('.home-screen');
-
         chatContainer.classList.toggle('open');
+        const welcomeText = newConversation.querySelector('.welcome-text');
 
         if (isOpening) {
-            // --- Logique d'ouverture ---
             const existingSessionId = sessionStorage.getItem(getDomainBasedKey('n8n-chat-session-id'));
             const chatActive = sessionStorage.getItem(getDomainBasedKey('n8n-chat-active'));
 
             if (existingSessionId && chatActive === 'true') {
-                // Une session existe, on la restaure et on passe au chat
-                currentSessionId = existingSessionId;
-                isChatClosed = chatActive === 'false';
-
-                homeScreen.style.display = 'none';
+                // Si une session existe, on la restaure et on masque la vue "nouvelle conversation"
+                newConversation.style.display = 'none';
                 chatInterface.classList.add('active');
                 restoreMessagesFromSession();
-
-                if (isChatClosed) {
-                    const chatInput = chatContainer.querySelector('.chat-input');
-                    if (chatInput) {
-                        chatInput.style.display = 'none';
-                    }
-                }
             } else {
-                // Aucune session, on affiche l'écran d'accueil
-                homeScreen.style.display = 'block';
+                // Sinon, on s'assure que la vue "nouvelle conversation" est visible
+                newConversation.style.display = 'block';
                 chatInterface.classList.remove('active');
+                // S'assurer que l'animation est appliquée
                 if (welcomeText) {
                     welcomeText.classList.add('play-shimmer');
                 }
             }
-
             // Forcer le reflow pour les problèmes de rendu iOS
             setTimeout(() => {
-                forceReflow(homeScreen);
+                forceReflow(newConversation);
                 forceReflow(chatInterface);
-            }, 10); // Délai réduit
+            }, 100); // Délai de 100ms pour s'assurer que la transition est terminée
 
         } else {
-            // --- Logique de fermeture ---
+            // Quand on ferme, on retire l'animation pour qu'elle se relance à la prochaine ouverture
             if (welcomeText) {
                 welcomeText.classList.remove('play-shimmer');
             }
