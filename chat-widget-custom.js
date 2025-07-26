@@ -1337,9 +1337,7 @@
                 newConversation.style.display = 'none';
                 chatInterface.classList.add('active');
                 restoreMessagesFromSession();
-                setTimeout(() => {
-                    forceReflow(chatInterface);
-                }, 10); // Délai de 100ms pour s'assurer que la transition est terminée
+                forceReflow(chatInterface);
             } else {
                 // Sinon, on s'assure que la vue "nouvelle conversation" est visible
                 newConversation.style.display = 'block';
@@ -1348,9 +1346,7 @@
                 if (welcomeText) {
                     welcomeText.classList.add('play-shimmer');
                 }
-                setTimeout(() => {
-                    forceReflow(newConversation);
-                }, 10);
+                forceReflow(newConversation);
             }
 
         } else {
