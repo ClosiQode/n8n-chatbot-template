@@ -1336,54 +1336,55 @@
     }
 
     toggleButton.addEventListener('click', () => {
-        chatContainer.classList.toggle('open');
-        const isOpening = chatContainer.classList.contains('open');
+        const isOpening = !chatContainer.classList.contains('open');
         const welcomeText = chatContainer.querySelector('.welcome-text');
         const newConversation = chatContainer.querySelector('.new-conversation');
 
+        chatContainer.classList.toggle('open');
+
         if (isOpening) {
-            // Force reflow to fix rendering issues on iOS
-            if (newConversation) {
-                setTimeout(() => {
-                    forceReflow(newConversation);
-                }, 100); // Small delay to ensure transition is started
-            }
-
-            // Add shimmer animation
-            if (welcomeText) {
-                welcomeText.classList.add('play-shimmer');
-            }
-
-            // Vérifier s'il y a une session active à restaurer
+            // --- Logique d'ouverture ---
             const existingSessionId = sessionStorage.getItem(getDomainBasedKey('n8n-chat-session-id'));
             const chatActive = sessionStorage.getItem(getDomainBasedKey('n8n-chat-active'));
-            
+
             if (existingSessionId && chatActive === 'true') {
-                // Restaurer la session existante
+                // Une session existe, on la restaure et on passe au chat
                 currentSessionId = existingSessionId;
                 isChatClosed = chatActive === 'false';
-                
-                // Passer directement à l'interface de chat
+
+                // On s'assure que l'écran d'accueil est bien masqué
+                newConversation.style.display = 'none';
                 const brandHeader = chatContainer.querySelector('.brand-header');
                 if (brandHeader) {
                     brandHeader.style.display = 'none';
                 }
-                chatContainer.querySelector('.new-conversation').style.display = 'none';
+                
                 chatInterface.classList.add('active');
-                
-                // Restaurer les messages
                 restoreMessagesFromSession();
-                
-                // Si le chat était fermé, masquer les contrôles
+
                 if (isChatClosed) {
                     const chatInput = chatContainer.querySelector('.chat-input');
                     if (chatInput) {
                         chatInput.style.display = 'none';
                     }
                 }
+            } else {
+                // Aucune session, on affiche l'écran d'accueil
+                newConversation.style.display = 'block';
+                chatInterface.classList.remove('active');
+                if (welcomeText) {
+                    welcomeText.classList.add('play-shimmer');
+                }
             }
+
+            // Forcer le reflow pour les problèmes de rendu iOS
+            setTimeout(() => {
+                forceReflow(newConversation);
+                forceReflow(chatInterface);
+            }, 100);
+
         } else {
-            // Remove shimmer animation when closing
+            // --- Logique de fermeture ---
             if (welcomeText) {
                 welcomeText.classList.remove('play-shimmer');
             }
