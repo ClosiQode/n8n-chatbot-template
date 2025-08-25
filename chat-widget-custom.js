@@ -1134,6 +1134,105 @@
         saveMessageToSession(text, false);
     }
 
+    function addFeedbackUI(questionId) {
+        const feedbackDiv = document.createElement('div');
+        feedbackDiv.className = 'feedback-container';
+        feedbackDiv.style.cssText = `
+            margin-top: 8px;
+            padding: 8px 12px;
+            background: rgba(0,0,0,0.05);
+            border-radius: 8px;
+            font-size: 12px;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        `;
+        
+        feedbackDiv.innerHTML = `
+            <span>Évaluer cette réponse :</span>
+            <button class="feedback-btn feedback-positive" data-feedback="1" style="
+                background: none;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                padding: 4px 8px;
+                cursor: pointer;
+                font-size: 14px;
+                transition: all 0.2s;
+            ">👍</button>
+            <button class="feedback-btn feedback-negative" data-feedback="0" style="
+                background: none;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                padding: 4px 8px;
+                cursor: pointer;
+                font-size: 14px;
+                transition: all 0.2s;
+            ">👎</button>
+        `;
+        
+        // Ajouter les event listeners pour les boutons de feedback
+        const feedbackButtons = feedbackDiv.querySelectorAll('.feedback-btn');
+        feedbackButtons.forEach(button => {
+            button.addEventListener('click', async (e) => {
+                const feedbackValue = parseInt(e.target.dataset.feedback);
+                
+                // Désactiver tous les boutons pour empêcher les clics multiples
+                feedbackButtons.forEach(btn => {
+                    btn.disabled = true;
+                    btn.style.opacity = '0.5';
+                    btn.style.cursor = 'not-allowed';
+                });
+                
+                // Mettre en évidence le bouton cliqué
+                e.target.style.background = feedbackValue === 1 ? '#d4edda' : '#f8d7da';
+                e.target.style.borderColor = feedbackValue === 1 ? '#28a745' : '#dc3545';
+                
+                // Envoyer le feedback
+                await sendFeedback(questionId, feedbackValue);
+            });
+        });
+        
+        // Ajouter le div de feedback après le dernier message bot
+        const lastBotMessage = messagesContainer.querySelector('.chat-message.bot:last-child');
+        if (lastBotMessage) {
+            lastBotMessage.appendChild(feedbackDiv);
+        }
+        
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    async function sendFeedback(questionId, feedbackValue) {
+        try {
+            const feedbackData = {
+                question_id: questionId,
+                feedback: feedbackValue
+            };
+            
+            // Vérifier si l'URL de feedback est configurée
+            if (!config.metadata?.url) {
+                console.warn('URL de feedback non configurée dans metadata.url');
+                return;
+            }
+            
+            const response = await fetch(config.metadata.url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(feedbackData)
+            });
+            
+            if (response.ok) {
+                console.log('Feedback envoyé avec succès');
+            } else {
+                console.error('Erreur lors de l\'envoi du feedback:', response.status);
+            }
+        } catch (error) {
+            console.error('Erreur lors de l\'envoi du feedback:', error);
+        }
+    }
+
     async function startNewConversation() {
         // Vérifier s'il y a une session existante
         const existingSessionId = sessionStorage.getItem(getDomainBasedKey('n8n-chat-session-id'));
@@ -1242,22 +1341,31 @@
             // Remove typing indicator
             typingIndicator.remove();
             
-            // Gérer la réponse avec le nouveau format {output, close_chat}
-            let messageText, shouldCloseChat = false;
+            // Gérer la réponse avec le nouveau format {output, close_chat, feedback, question_id}
+            let messageText, shouldCloseChat = false, shouldShowFeedback = false, questionId = null;
             
             if (Array.isArray(data)) {
                 // Format tableau (ancien format)
                 messageText = data[0].output.output;
                 shouldCloseChat = data[0].output.close_chat || false;
+                shouldShowFeedback = data[0].output.feedback || false;
+                questionId = data[0].output.question_id || null;
             } else {
                 // Format objet direct
                 messageText = data.output.output;
                 shouldCloseChat = data.output.close_chat || false;
+                shouldShowFeedback = data.output.feedback || false;
+                questionId = data.output.question_id || null;
             }
             
             // Afficher le message du bot
             if (messageText) {
                 addBotMessage(messageText);
+                
+                // Ajouter l'UI de feedback si demandé
+                if (shouldShowFeedback && questionId) {
+                    addFeedbackUI(questionId);
+                }
             }
             
             // Gérer la fermeture du chat si demandée
