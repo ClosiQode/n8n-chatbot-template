@@ -1202,12 +1202,26 @@
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
 
+    // Fonctions pour gérer l'état des contrôles d'envoi
+    function disableSendControls() {
+        sendButton.disabled = true;
+        sendButton.style.opacity = '0.5';
+        sendButton.style.cursor = 'not-allowed';
+        textarea.setAttribute('data-send-disabled', 'true');
+    }
+
+    function enableSendControls() {
+        sendButton.disabled = false;
+        sendButton.style.opacity = '1';
+        sendButton.style.cursor = 'pointer';
+        textarea.removeAttribute('data-send-disabled');
+    }
+
     async function sendFeedback(questionId, feedbackValue) {
         try {
             const feedbackData = {
                 question_id: questionId,
-                feedback: feedbackValue,
-                user_id: config.metadata?.userId || null
+                feedback: feedbackValue
             };
             
             // Vérifier si l'URL de feedback est configurée
@@ -1326,6 +1340,9 @@
         // Sauvegarder le message utilisateur
         saveMessageToSession(message, true);
 
+        // Désactiver les contrôles d'envoi
+        disableSendControls();
+
         const typingIndicator = showTypingIndicator();
 
         try {
@@ -1374,6 +1391,9 @@
                 handleChatClosure();
             }
             
+            // Réactiver les contrôles d'envoi
+            enableSendControls();
+            
         } catch (error) {
             console.error('Error:', error);
             typingIndicator.remove();
@@ -1384,6 +1404,9 @@
             errorMessageDiv.innerHTML = '<em>❌ Désolé, une erreur s\'est produite. Veuillez réessayer.</em>';
             messagesContainer.appendChild(errorMessageDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            // Réactiver les contrôles d'envoi même en cas d'erreur
+            enableSendControls();
         }
     }
 
@@ -1391,6 +1414,11 @@
     newChatBtn.addEventListener('click', startNewConversation);
     
     sendButton.addEventListener('click', () => {
+        // Vérifier si les contrôles d'envoi sont désactivés
+        if (sendButton.disabled) {
+            return;
+        }
+        
         const message = textarea.value.trim();
         if (message) {
             sendMessage(message);
@@ -1402,6 +1430,12 @@
     textarea.addEventListener('keypress', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
+            
+            // Vérifier si les contrôles d'envoi sont désactivés
+            if (textarea.getAttribute('data-send-disabled') === 'true') {
+                return;
+            }
+            
             const message = textarea.value.trim();
             if (message) {
                 sendMessage(message);
