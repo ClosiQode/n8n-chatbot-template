@@ -1206,7 +1206,8 @@
         try {
             const feedbackData = {
                 question_id: questionId,
-                feedback: feedbackValue
+                feedback: feedbackValue,
+                user_id: config.metadata?.userId || null
             };
             
             // Vérifier si l'URL de feedback est configurée
