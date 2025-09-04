@@ -529,6 +529,7 @@
             z-index: 11;
         }
 
+        /* Textarea avec défilement vertical pour les messages longs */
         .n8n-chat-widget .chat-input textarea {
             flex: 1;
             border: 2px solid var(--chat--border-color);
@@ -538,12 +539,29 @@
             resize: none;
             outline: none;
             font-family: inherit;
-            max-height: 120px;
+            max-height: 150px;
             min-height: 44px;
             background: var(--chat--bg-secondary);
             color: var(--chat--text-primary);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            overflow: hidden;
+            overflow-y: auto; /* Permet le défilement vertical quand le texte dépasse */
+            scrollbar-width: thin; /* Pour Firefox */
+            scrollbar-color: var(--chat--color-primary) var(--chat--bg-tertiary); /* Pour Firefox */
+            -webkit-overflow-scrolling: touch; /* Pour une meilleure expérience de défilement sur iOS */
+        }
+        
+        .n8n-chat-widget .chat-input textarea::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .n8n-chat-widget .chat-input textarea::-webkit-scrollbar-track {
+            background: var(--chat--bg-tertiary);
+            border-radius: 3px;
+        }
+
+        .n8n-chat-widget .chat-input textarea::-webkit-scrollbar-thumb {
+            background: var(--chat--color-primary);
+            border-radius: 3px;
         }
 
         .n8n-chat-widget .chat-input textarea:focus {
