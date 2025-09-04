@@ -78,7 +78,7 @@
             /* Ajustements pour les boutons de fermeture et minimisation */
             .n8n-chat-widget .close-button,
             .n8n-chat-widget .minimize-button {
-                top: 25px !important;
+                top: 24px !important;
                 margin-top: env(safe-area-inset-top, 0px) !important;
                 transform: none !important;
             }
