@@ -420,7 +420,7 @@
         .n8n-chat-widget .chat-interface {
             display: none;
             flex-direction: column;
-            height: calc(100% - 73px); /* Hauteur totale - hauteur du header */
+            height: calc(100% - 62px); /* Hauteur totale - hauteur du header */
             animation: fadeInScale var(--chat-animation-speed, 0.5s) var(--chat-animation-easing, cubic-bezier(0.4, 0, 0.2, 1));
         }
 
