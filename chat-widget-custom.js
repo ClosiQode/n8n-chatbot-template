@@ -78,7 +78,8 @@
             /* Ajustements pour les boutons de fermeture et minimisation */
             .n8n-chat-widget .close-button,
             .n8n-chat-widget .minimize-button {
-                top: calc(30px + env(safe-area-inset-top, 0px)) !important;
+                top: 20px !important;
+                margin-top: env(safe-area-inset-top, 0px) !important;
                 transform: none !important;
             }
         }
@@ -165,7 +166,7 @@
             top: 50%;
             transform: translateY(-50%);
             background: var(--chat--bg-tertiary);
-            border: none;
+            border: 1px solid var(--chat--border-color);
             color: var(--chat--text-secondary);
             cursor: pointer;
             padding: 8px;
@@ -261,7 +262,7 @@
             top: 50%;
             transform: translateY(-50%);
             background: var(--chat--bg-tertiary);
-            border: none;
+            border: 1px solid var(--chat--border-color);
             color: var(--chat--text-secondary);
             cursor: pointer;
             padding: 8px;
@@ -587,6 +588,9 @@
             position: sticky;
             bottom: 0;
             z-index: 10;
+            border-bottom-left-radius: var(--chat-border-radius, 20px);
+            border-bottom-right-radius: var(--chat-border-radius, 20px);
+            margin-bottom: -1px; /* Pour éviter l'espace entre le footer et le bord du widget */
         }
 
         .n8n-chat-widget .chat-footer a {
