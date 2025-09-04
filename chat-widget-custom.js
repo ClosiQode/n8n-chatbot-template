@@ -1,5 +1,28 @@
 // Modern Multilingual Chat Widget with Dark Mode & Animations
 (function() {
+    // Ajouter le meta viewport dynamique pour éviter les problèmes avec la barre d'adresse mobile
+    function setupDynamicViewport() {
+        // Vérifier si on est sur mobile
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        
+        if (isMobile) {
+            // Chercher une balise viewport existante
+            let viewportMeta = document.querySelector('meta[name="viewport"]');
+            
+            // Si elle n'existe pas, la créer
+            if (!viewportMeta) {
+                viewportMeta = document.createElement('meta');
+                viewportMeta.name = 'viewport';
+                document.head.appendChild(viewportMeta);
+            }
+            
+            // Configurer le viewport pour éviter les problèmes avec la barre d'adresse
+            viewportMeta.content = 'width=device-width, initial-scale=1.0, viewport-fit=cover, height=device-height';
+        }
+    }
+    
+    // Appliquer le viewport dynamique
+    setupDynamicViewport();
 
     // Detect system theme preference
     const getSystemTheme = () => {
@@ -11,6 +34,17 @@
 
     // Create and inject modern styles with dark mode support
     const styles = `
+        /* Ajustements pour le viewport mobile */
+        @supports (padding-top: env(safe-area-inset-top)) {
+            body {
+                /* Assurer que le contenu n'est pas caché sous la barre d'adresse */
+                padding-top: env(safe-area-inset-top, 0px);
+                padding-bottom: env(safe-area-inset-bottom, 0px);
+                padding-left: env(safe-area-inset-left, 0px);
+                padding-right: env(safe-area-inset-right, 0px);
+            }
+        }
+        
         .n8n-chat-widget {
             --chat--color-primary: var(--n8n-chat-primary-color, #854fff);
             --chat--color-secondary: var(--n8n-chat-secondary-color, #6b3fd4);
@@ -68,6 +102,7 @@
             display: none;
             width: var(--chat-width, 380px);
             height: var(--chat-height, 600px);
+            max-height: calc(100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 40px);
             background: var(--chat--bg-primary);
             border-radius: var(--chat-border-radius, 20px);
             box-shadow: var(--chat--shadow);
@@ -80,6 +115,9 @@
             transition: all var(--chat-animation-speed, 0.4s) var(--chat-animation-easing, cubic-bezier(0.4, 0, 0.2, 1));
             transform: translateY(100%) scale(0.8);
             opacity: var(--chat-opacity, 0);
+            /* Ajustements pour les appareils mobiles */
+            margin-bottom: env(safe-area-inset-bottom, 0px);
+            margin-right: env(safe-area-inset-right, 0px);
         }
 
         .n8n-chat-widget .minimize-button {
@@ -100,6 +138,8 @@
             border-radius: 50%;
             width: 32px;
             height: 32px;
+            /* Ajustements pour la visibilité sur mobile */
+            z-index: 20;
         }
 
         .n8n-chat-widget .minimize-button:hover {
@@ -169,6 +209,9 @@
             border-bottom: 1px solid var(--chat--border-color);
             position: relative;
             background: linear-gradient(135deg, var(--chat--bg-primary) 0%, var(--chat--bg-secondary) 100%);
+            /* Ajout de padding pour les appareils mobiles avec barre d'adresse */
+            padding-top: env(safe-area-inset-top, 20px);
+            z-index: 10;
         }
 
         .n8n-chat-widget .close-button {
@@ -189,6 +232,9 @@
             border-radius: 50%;
             width: 32px;
             height: 32px;
+            /* Ajustements pour la visibilité sur mobile */
+            z-index: 20;
+            margin-right: env(safe-area-inset-right, 0);
         }
 
         .n8n-chat-widget .close-button:hover {
