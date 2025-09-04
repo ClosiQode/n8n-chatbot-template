@@ -34,14 +34,52 @@
 
     // Create and inject modern styles with dark mode support
     const styles = `
-        /* Ajustements pour le viewport mobile */
-        @supports (padding-top: env(safe-area-inset-top)) {
-            body {
-                /* Assurer que le contenu n'est pas caché sous la barre d'adresse */
-                padding-top: env(safe-area-inset-top, 0px);
-                padding-bottom: env(safe-area-inset-bottom, 0px);
-                padding-left: env(safe-area-inset-left, 0px);
-                padding-right: env(safe-area-inset-right, 0px);
+        /* Ajustements pour les appareils mobiles */
+        @supports (padding-bottom: env(safe-area-inset-bottom)) {
+            .n8n-chat-widget .chat-toggle {
+                bottom: max(20px, env(safe-area-inset-bottom)) !important;
+            }
+        }
+        
+        @media screen and (max-width: 768px) {
+            .n8n-chat-widget .chat-container {
+                width: 100% !important;
+                height: 100% !important;
+                max-height: 100% !important;
+                bottom: 0 !important;
+                right: 0 !important;
+                border-radius: 0 !important;
+                margin: 0 !important;
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                display: flex !important;
+                flex-direction: column !important;
+            }
+            
+            .n8n-chat-widget .brand-header {
+                padding-top: max(20px, env(safe-area-inset-top)) !important;
+                height: auto !important;
+            }
+            
+            .n8n-chat-widget .chat-messages {
+                flex: 1 !important;
+                overflow-y: auto !important;
+            }
+            
+            .n8n-chat-widget .chat-input {
+                padding-bottom: max(20px, env(safe-area-inset-bottom)) !important;
+            }
+            
+            .n8n-chat-widget .chat-footer {
+                padding-bottom: max(16px, env(safe-area-inset-bottom)) !important;
+            }
+            
+            /* Ajustements pour les boutons de fermeture et minimisation */
+            .n8n-chat-widget .close-button,
+            .n8n-chat-widget .minimize-button {
+                top: calc(30px + env(safe-area-inset-top, 0px)) !important;
+                transform: none !important;
             }
         }
         
@@ -102,7 +140,8 @@
             display: none;
             width: var(--chat-width, 380px);
             height: var(--chat-height, 600px);
-            max-height: calc(100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 40px);
+            /* Ajustement de la hauteur pour s'adapter aux barres d'adresse mobiles */
+            max-height: calc(100vh - 40px);
             background: var(--chat--bg-primary);
             border-radius: var(--chat-border-radius, 20px);
             box-shadow: var(--chat--shadow);
@@ -207,11 +246,13 @@
             align-items: center;
             gap: 12px;
             border-bottom: 1px solid var(--chat--border-color);
-            position: relative;
+            position: sticky;
+            top: 0;
             background: linear-gradient(135deg, var(--chat--bg-primary) 0%, var(--chat--bg-secondary) 100%);
-            /* Ajout de padding pour les appareils mobiles avec barre d'adresse */
-            padding-top: env(safe-area-inset-top, 20px);
             z-index: 10;
+            /* Hauteur fixe pour éviter les problèmes avec la barre d'adresse */
+            height: 60px;
+            box-sizing: border-box;
         }
 
         .n8n-chat-widget .close-button {
@@ -234,7 +275,6 @@
             height: 32px;
             /* Ajustements pour la visibilité sur mobile */
             z-index: 20;
-            margin-right: env(safe-area-inset-right, 0);
         }
 
         .n8n-chat-widget .close-button:hover {
@@ -483,6 +523,9 @@
             gap: 12px;
             align-items: flex-end;
             background: var(--chat--bg-primary);
+            position: sticky;
+            bottom: 0;
+            z-index: 11;
         }
 
         .n8n-chat-widget .chat-input textarea {
@@ -541,6 +584,9 @@
             text-align: center;
             border-top: 1px solid var(--chat--border-color);
             background: var(--chat--bg-secondary);
+            position: sticky;
+            bottom: 0;
+            z-index: 10;
         }
 
         .n8n-chat-widget .chat-footer a {
@@ -572,6 +618,8 @@
             z-index: 999;
             overflow: hidden;
             animation: var(--chat-toggle-animation, breathe) var(--chat-toggle-animation-duration, 3s) ease-in-out infinite;
+            margin-bottom: env(safe-area-inset-bottom, 0px);
+            margin-right: env(safe-area-inset-right, 0px);
         }
 
         /* Nouvelles animations configurables */
